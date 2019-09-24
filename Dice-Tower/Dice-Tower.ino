@@ -65,6 +65,8 @@ Button2 btnConfig(BTN_CONFIG); // Uses external 4,7K pull-up resistor
 
 bool eyesOn = false;
 
+bool stableLight = false;
+
 // == BUTTON HANDLING =====================================================================================
 void button_init()
 {
@@ -92,7 +94,14 @@ void button_init()
     });
     
     btnConfig.setClickHandler([](Button2 & b) {
-       // Change program
+       if(stableLight==false)
+       {
+          stableLight=true;
+       }
+       else
+       {
+          stableLight=false;
+       }
     });
 }
 
@@ -191,17 +200,25 @@ unsigned long lastTimestamp = millis();
 void loop() {
   button_loop(); // Poll button states
 
-  if(millis()-lastTimestamp > fireFlickeringSpeed)
+  if(stableLight==true)
   {
-    int randFire1 = random(fireMinIntensity,fireMaxIntensity);
-    int randFire2 = random(fireMinIntensity,fireMaxIntensity);
-    int randFire3 = random(fireMinIntensity,fireMaxIntensity);
-    analogWrite(LED_FIRE1, randFire1);
-    analogWrite(LED_FIRE2, randFire2);
-    analogWrite(LED_FIRE3, randFire3);
-    lastTimestamp = millis();
+    analogWrite(LED_FIRE1, fireMaxIntensity);
+    analogWrite(LED_FIRE2, fireMaxIntensity);
+    analogWrite(LED_FIRE3, fireMaxIntensity);
   }
-  
+  else
+  {
+    if(millis()-lastTimestamp > fireFlickeringSpeed)
+    {
+      int randFire1 = random(fireMinIntensity,fireMaxIntensity);
+      int randFire2 = random(fireMinIntensity,fireMaxIntensity);
+      int randFire3 = random(fireMinIntensity,fireMaxIntensity);
+      analogWrite(LED_FIRE1, randFire1);
+      analogWrite(LED_FIRE2, randFire2);
+      analogWrite(LED_FIRE3, randFire3);
+      lastTimestamp = millis();
+    }
+  }
   if(eyesOn == true)
   {
     analogWrite(LED_EYE1,eyeActiveIntensity);
