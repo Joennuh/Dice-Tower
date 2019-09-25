@@ -54,29 +54,34 @@
 // == SETTINGS ============================================================================================
 const int eyeIdleIntensity = 20; // Idle intensity for eyes
 const int eyeActiveIntensity = 255; // Active intensity for eyes
+const int eyeActiveDuration = 5000; // In milliseconds
 const int fireMinIntensity = 0; // Minimum intensity for campfire flickering
 const int fireMaxIntensity = 255; // Maximum intensity for campfire flickering
 
 const unsigned long fireFlickeringSpeed = 75; // Interval in milliseconds
 
 // == CONFIGURATION =======================================================================================
-Button2 btnTrigger(BTN_TRIGGER, INPUT_PULLUP); // Activate internal pull-up resistor of Wemos D1 mini pin D3
+Button2 btnTrigger(BTN_TRIGGER, INPUT_PULLUP,1); // Activate internal pull-up resistor of Wemos D1 mini pin D3
 Button2 btnConfig(BTN_CONFIG); // Uses external 4,7K pull-up resistor
 
 bool eyesOn = false;
+unsigned long eyesStartTimestamp = millis();
 
 bool stableLight = false;
 
 // == BUTTON HANDLING =====================================================================================
 void button_init()
 {
-    btnTrigger.setPressedHandler([](Button2 & b) {
+    btnTrigger.setChangedHandler([](Button2 & b) {
        eyesOn = true;
+       eyesStartTimestamp = millis();
+       Serial.print("Trigger activated! Timestamp: ");
+       Serial.println(eyesStartTimestamp);
     });
 
-    btnTrigger.setReleasedHandler([](Button2 & b) {
-       eyesOn = false;
-    });
+//    btnTrigger.setReleasedHandler([](Button2 & b) {
+//       eyesOn = false;
+//    });
     
     btnConfig.setLongClickHandler([](Button2 & b) {
 //        // Select
@@ -221,8 +226,15 @@ void loop() {
   }
   if(eyesOn == true)
   {
-    analogWrite(LED_EYE1,eyeActiveIntensity);
-    analogWrite(LED_EYE2,eyeActiveIntensity);
+    if(millis() - eyesStartTimestamp < eyeActiveDuration)
+    {
+      analogWrite(LED_EYE1,eyeActiveIntensity);
+      analogWrite(LED_EYE2,eyeActiveIntensity);
+    }
+    else
+    {
+      eyesOn = false;
+    }
   }
   else
   {
