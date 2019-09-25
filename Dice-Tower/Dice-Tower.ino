@@ -75,7 +75,7 @@ void button_init()
     btnTrigger.setChangedHandler([](Button2 & b) {
        eyesOn = true;
        eyesStartTimestamp = millis();
-       Serial.print("Trigger activated! Timestamp: ");
+       Serial.print("Trigger activated! Activating eyes. Timestamp: ");
        Serial.println(eyesStartTimestamp);
     });
 
@@ -132,6 +132,15 @@ void setup() {
 
   // Intialize buttons
   button_init();
+
+  // Initialize onboard led, test it and leave it on until fully booted
+  Serial.print("Configure onboard led... ");
+  pinMode(LED_BUILTIN,OUTPUT);
+  Serial.println("DONE");
+  Serial.print("Turning onboard led on...");
+  digitalWrite(LED_BUILTIN,LOW); // Onboard led is active low
+  Serial.println("DONE");
+  delay(500);
 
   // Initialize eye 1, test it and turn it off
   Serial.print("Configure led eye 1... ");
@@ -197,6 +206,13 @@ void setup() {
   Serial.print("Feeding randomSeed with random analog noise of unconnected analog pin... ");
   randomSeed(analogRead(A0));
   Serial.println("DONE");
+
+  // Turning onboard led off
+  Serial.print("Turning onboard led off... ");
+  digitalWrite(LED_BUILTIN,HIGH);
+  Serial.println("DONE");
+
+  Serial.println("- READY -");
 }
 
 // Set starting timestamp
@@ -228,16 +244,20 @@ void loop() {
   {
     if(millis() - eyesStartTimestamp < eyeActiveDuration)
     {
+      digitalWrite(LED_BUILTIN,LOW);
       analogWrite(LED_EYE1,eyeActiveIntensity);
       analogWrite(LED_EYE2,eyeActiveIntensity);
     }
     else
     {
       eyesOn = false;
+      Serial.print("Deactivating eyes. Timestamp: ");
+      Serial.println(millis());
     }
   }
   else
   {
+    digitalWrite(LED_BUILTIN,HIGH);
     analogWrite(LED_EYE1,eyeIdleIntensity);
     analogWrite(LED_EYE2,eyeIdleIntensity);
   }
