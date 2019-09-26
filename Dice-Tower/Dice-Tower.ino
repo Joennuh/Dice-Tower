@@ -54,9 +54,15 @@
 // == SETTINGS ============================================================================================
 const int eyeIdleIntensity = 20; // Idle intensity for eyes
 const int eyeActiveIntensity = 255; // Active intensity for eyes
-const int eyeActiveDuration = 5000; // In milliseconds
+const int eyeActiveDuration = 3000; // In milliseconds
+
+const int eyeBlinkShortOn = 100;
+const int eyeBlinkShortOff = 100;
+const int eyeBlinkAmount = 3;
+
 const int fireMinIntensity = 0; // Minimum intensity for campfire flickering
 const int fireMaxIntensity = 255; // Maximum intensity for campfire flickering
+
 
 const unsigned long fireFlickeringSpeed = 75; // Interval in milliseconds
 
@@ -66,6 +72,9 @@ Button2 btnConfig(BTN_CONFIG); // Uses external 4,7K pull-up resistor
 
 bool eyesOn = false;
 unsigned long eyesStartTimestamp = millis();
+unsigned long blinkShortTimestamp = millis();
+int eyeBlinkCount = eyeBlinkAmount;
+int eyeBlinkShortState = 1;
 
 bool stableLight = false;
 
@@ -75,6 +84,9 @@ void button_init()
     btnTrigger.setChangedHandler([](Button2 & b) {
        eyesOn = true;
        eyesStartTimestamp = millis();
+       blinkShortTimestamp = millis();
+       eyeBlinkCount = eyeBlinkAmount; // Reset blink counter
+       eyeBlinkShortState = 1; // Reset blink state
        Serial.print("Trigger activated! Activating eyes. Timestamp: ");
        Serial.println(eyesStartTimestamp);
     });
@@ -244,9 +256,74 @@ void loop() {
   {
     if(millis() - eyesStartTimestamp < eyeActiveDuration)
     {
-      digitalWrite(LED_BUILTIN,LOW);
-      analogWrite(LED_EYE1,eyeActiveIntensity);
-      analogWrite(LED_EYE2,eyeActiveIntensity);
+        digitalWrite(LED_BUILTIN,LOW);
+
+//      analogWrite(LED_EYE1,eyeActiveIntensity);
+//      analogWrite(LED_EYE2,eyeActiveIntensity);
+
+        if(stableLight==true)
+        {
+          Serial.println("Stable light is activated so not blinking. Just stable lit eyes.");
+          analogWrite(LED_EYE1,eyeActiveIntensity);
+          analogWrite(LED_EYE2,eyeActiveIntensity);
+        }
+        else
+        {       
+            Serial.print("eyeBlinkCount: ");
+            Serial.print(eyeBlinkCount);
+            Serial.print(", eyeBlinkAmount: ");
+            Serial.println(eyeBlinkAmount);
+            if(eyeBlinkCount > 0)
+            {
+                Serial.println("eyeBlinkCount > 0");
+                Serial.print("millis(): ");
+                Serial.print(millis());
+                Serial.print(", blinkShortTimestamp: ");
+                Serial.print(blinkShortTimestamp);
+                Serial.print(", eyeBlinkShortOn: ");
+                Serial.print(eyeBlinkShortOn);
+                Serial.print(", eyeBlinkShortOff: ");
+                Serial.print(eyeBlinkShortOff);
+                Serial.print(", eyeBlinkShortState: ");
+                Serial.println(eyeBlinkShortState);
+                if(eyeBlinkShortState == 1){
+                    Serial.println("eyeBlinkShortState == 1");
+                    if(millis() - blinkShortTimestamp <= eyeBlinkShortOn)
+                    {
+                        Serial.println("blinkShortTimestamp <= eyeBlinkShortOn");
+                        analogWrite(LED_EYE1,eyeActiveIntensity);
+                        analogWrite(LED_EYE2,eyeActiveIntensity);
+                    }
+                    else{
+                        Serial.println("blinkShortTimestamp > eyeBlinkShortOn >> Set eyeBlinkShortState to 0 and reset timestamp");
+                        blinkShortTimestamp = millis();
+                        eyeBlinkShortState = 0; // Set blink state to off
+                    }
+                }
+                else if(eyeBlinkShortState == 0){
+                    Serial.println("eyeBlinkShortState == 0");
+                    if(millis() - blinkShortTimestamp <= eyeBlinkShortOff)
+                    {
+                        Serial.println("blinkShortTimestamp <= eyeBlinkShortOff");
+                        analogWrite(LED_EYE1,eyeIdleIntensity);
+                        analogWrite(LED_EYE2,eyeIdleIntensity);
+                    }
+                    else{
+                        Serial.println("blinkShortTimestamp > eyeBlinkShortOff >> Set eyeBlinkShortState to 1, decrease eyeBlinkCount and reset timestamp");
+                        blinkShortTimestamp = millis();
+                        eyeBlinkShortState = 1; // Set blink state to on
+                        eyeBlinkCount--;
+                    }
+                }
+            }
+            else
+            {
+                // Turn light continuously on
+                Serial.println("Eyes continously on");
+                analogWrite(LED_EYE1,eyeActiveIntensity);
+                analogWrite(LED_EYE2,eyeActiveIntensity);
+            }
+        }      
     }
     else
     {
