@@ -40,6 +40,7 @@
 #include <Button2.h>
 
 // == DEFINES =============================================================================================
+#define LED_CONFIG D0
 #define LED_EYE1 D1
 #define LED_EYE2 D2
 #define LED_FIRE1 D6
@@ -62,9 +63,12 @@ const int eyeBlinkAmount = 3;
 
 const int fireMinIntensity = 0; // Minimum intensity for campfire flickering
 const int fireMaxIntensity = 255; // Maximum intensity for campfire flickering
-
-
 const unsigned long fireFlickeringSpeed = 75; // Interval in milliseconds
+
+const int configLedSingleClickDurationOn = 200; // Milliseconds
+const int configLedLongClickDurationOn = 1000; // Milliseconds
+const int configLedDoubleClickDurationOn = 200; // Milliseconds
+const int configLedDoubleClickDurationOff = 200; // Milliseconds
 
 // == CONFIGURATION =======================================================================================
 Button2 btnTrigger(BTN_TRIGGER, INPUT_PULLUP,1); // Activate internal pull-up resistor of Wemos D1 mini pin D3
@@ -78,15 +82,23 @@ int eyeBlinkShortState = 1;
 
 bool stableLight = false;
 
+bool configLedOn = false;
+int configLedType = 0; // 0 = none, 1 = single click, 2 = long click, 3 = double click
+unsigned long configLedTimestamp = millis();
+int configLedDoubleClickstate = 0;
+int configLedDoubleClickCount = 2;
+
 // == BUTTON HANDLING =====================================================================================
 void button_init()
 {
     btnTrigger.setChangedHandler([](Button2 & b) {
-       eyesOn = true;
        eyesStartTimestamp = millis();
        blinkShortTimestamp = millis();
+
+       eyesOn = true;
        eyeBlinkCount = eyeBlinkAmount; // Reset blink counter
        eyeBlinkShortState = 1; // Reset blink state
+       
        Serial.print("Trigger activated! Activating eyes. Timestamp: ");
        Serial.println(eyesStartTimestamp);
     });
@@ -96,29 +108,57 @@ void button_init()
 //    });
     
     btnConfig.setLongClickHandler([](Button2 & b) {
-//        // Select
-//        unsigned int time = b.wasPressedFor();
-//        if (time >= 1000) {
-//          if(checkIdling()==false)
-//          {
-//            nav.doNav(enterCmd);
-//          }
-//          else
-//          {
-//            toggleTorch();
-//          }          
-//        }
+        // Select
+        unsigned int time = b.wasPressedFor();
+        if (time >= 1000) {
+           configLedTimestamp = millis();
+           configLedOn = true;
+           configLedType = 2;
+           configLedDoubleClickstate = 1;
+           configLedDoubleClickCount = 2;
+           Serial.print("Config long click activated! Timestamp: ");
+           Serial.println(configLedTimestamp);
+
+           if(stableLight==false)
+           {
+              stableLight=true;
+           }
+           else
+           {
+              stableLight=false;
+           }
+        }
+    });
+
+     btnConfig.setDoubleClickHandler([](Button2 & b) {
+       configLedTimestamp = millis();
+       configLedOn = true;
+       configLedType = 3;
+       configLedDoubleClickstate = 1;
+       configLedDoubleClickCount = 2;
+       Serial.print("Config double click activated! Timestamp: ");
+       Serial.println(configLedTimestamp);
     });
     
     btnConfig.setClickHandler([](Button2 & b) {
-       if(stableLight==false)
-       {
-          stableLight=true;
-       }
-       else
-       {
-          stableLight=false;
-       }
+       configLedTimestamp = millis();
+       configLedOn = true;
+       configLedType = 1;
+       configLedDoubleClickstate = 0;
+       configLedDoubleClickCount = 2;
+       
+       Serial.print("Config single click activated! Timestamp: ");
+       Serial.println(configLedTimestamp);
+
+       eyesStartTimestamp = millis();
+       blinkShortTimestamp = millis();
+
+       eyesOn = true;
+       eyeBlinkCount = eyeBlinkAmount; // Reset blink counter
+       eyeBlinkShortState = 1; // Reset blink state
+       
+       Serial.print("Manual rigger activated! Activating eyes. Timestamp: ");
+       Serial.println(eyesStartTimestamp);
     });
 }
 
@@ -153,6 +193,18 @@ void setup() {
   digitalWrite(LED_BUILTIN,LOW); // Onboard led is active low
   Serial.println("DONE");
   delay(500);
+
+   // Initialize config led, test it and turn it off
+  Serial.print("Configure config led... ");
+  pinMode(LED_CONFIG, OUTPUT);
+  Serial.println("DONE");
+  Serial.print("Turning config led on... ");
+  digitalWrite(LED_CONFIG, HIGH);
+  Serial.println("DONE");
+  delay(500);
+  Serial.print("Turning config led off... ");
+  digitalWrite(LED_CONFIG, LOW);
+  Serial.println("DONE");
 
   // Initialize eye 1, test it and turn it off
   Serial.print("Configure led eye 1... ");
@@ -233,7 +285,75 @@ unsigned long lastTimestamp = millis();
 void loop() {
   button_loop(); // Poll button states
 
-  if(stableLight==true)
+  if(configLedOn == true)
+  {
+    if(configLedType == 1){
+        if(millis()- configLedTimestamp <= configLedSingleClickDurationOn)
+        {
+            digitalWrite(LED_CONFIG, HIGH);
+        }
+        else
+        {
+            digitalWrite(LED_CONFIG, LOW);
+            configLedTimestamp = millis();
+            configLedOn = false;
+            configLedType = 0;
+        }
+    }
+    else if(configLedType == 2){
+        if(millis()- configLedTimestamp <= configLedLongClickDurationOn)
+        {
+            digitalWrite(LED_CONFIG, HIGH);
+        }
+        else
+        {
+            digitalWrite(LED_CONFIG, LOW);
+            configLedTimestamp = millis();
+            configLedOn = false;
+            configLedType = 0;
+        }
+    }
+    else if(configLedType == 3){
+       //configLedDoubleClickstate = 0;
+       //configLedDoubleClickCount = 2;
+        if(configLedDoubleClickCount > 0)
+        {
+          Serial.print("millis(): ");
+          Serial.print(millis());
+          Serial.print(", configLedTimestamp: ");
+          Serial.println(configLedTimestamp);
+          if(configLedDoubleClickstate == 1){
+              Serial.println("configLedDoubleClickstate == 1");
+              if(millis() - configLedTimestamp <= configLedDoubleClickDurationOn)
+              {
+                  Serial.println("configLedTimestamp <= configLedDoubleClickDurationOn");
+                  digitalWrite(LED_CONFIG,HIGH);
+              }
+              else{
+                  Serial.println("configLedTimestamp > configLedDoubleClickDurationOn >> Set configLedDoubleClickstate to 0 and reset timestamp");
+                  configLedTimestamp = millis();
+                  configLedDoubleClickstate = 0; // Set blink state to off
+              }
+          }
+          else if(configLedDoubleClickstate == 0){
+              Serial.println("configLedDoubleClickstate == 0");
+              if(millis() - configLedTimestamp <= configLedDoubleClickDurationOff)
+              {
+                  Serial.println("configLedTimestamp <= configLedDoubleClickDurationOff");
+                  digitalWrite(LED_CONFIG,LOW);
+              }
+              else{
+                  Serial.println("configLedTimestamp > configLedDoubleClickDurationOff >> Set configLedDoubleClickstate to 1, decrease configLedDoubleClickCount and reset timestamp");
+                  configLedTimestamp = millis();
+                  configLedDoubleClickstate = 1; // Set blink state to on
+                  configLedDoubleClickCount--;
+              }
+          }
+        }
+    }
+  }
+  
+  if(stableLight == true)
   {
     analogWrite(LED_FIRE1, fireMaxIntensity);
     analogWrite(LED_FIRE2, fireMaxIntensity);
