@@ -35,11 +35,17 @@
  * - 1 button (attached with external 4,7K pull-up resistor to D5)
  * - 1 any kind of switch to trigger blinking eyes (attached to D3)
 ************************************************************************************************************/
+// Sketch metadata. Please do not change the following lines unless you plan to release an fork. In that case please add some information about you to these lines.
+#define PROG_NAME "Dice Tower"
+#define PROG_VERSION "0.1.0000"
+#define PROG_MANUFACTURER "The Big Site"
 
 // == INCLUDES ============================================================================================
 #include <Button2.h>
 
 // == DEFINES =============================================================================================
+// You can change the values of this defines but it is advisable to not do this.
+
 #define LED_CONFIG D0
 #define LED_EYE1 D1
 #define LED_EYE2 D2
@@ -48,56 +54,60 @@
 #define LED_FIRE3 D8
 #define BTN_TRIGGER D3
 #define BTN_CONFIG D5
-#define PROG_NAME "Dice Tower"
-#define PROG_VERSION "0.1.0000"
-#define PROG_MANUFACTURER "The Big Site"
 
 // == SETTINGS ============================================================================================
-const int eyeIdleIntensity = 20; // Idle intensity for eyes
-const int eyeActiveIntensity = 255; // Active intensity for eyes
-const int eyeActiveDuration = 3000; // In milliseconds
+// These settings can be change to your own needs.
 
-const int eyeBlinkShortOn = 100;
-const int eyeBlinkShortOff = 100;
-const int eyeBlinkAmount = 3;
+const int eyeIdleIntensity = 20; // Idle intensity for the eyes on a scale of 0 to 255
+const int eyeActiveIntensity = 255; // Active intensity for the eyes on a scale of 0 to 255
+const int eyeActiveDuration = 3000; // How long the eyes should stay active on a detected dice. In milliseconds.
 
-const int fireMinIntensity = 0; // Minimum intensity for campfire flickering
-const int fireMaxIntensity = 255; // Maximum intensity for campfire flickering
-const unsigned long fireFlickeringSpeed = 75; // Interval in milliseconds
+const int eyeBlinkShortOn = 100; // Duration of the on state while blinking. In milliseconds.
+const int eyeBlinkShortOff = 100; // Duration of the off state while blinking. In milliseconds.
+const int eyeBlinkAmount = 3; // How much blinks of the eyes during the blink state on a detected dice.
 
-const int configLedSingleClickDurationOn = 200; // Milliseconds
-const int configLedLongClickDurationOn = 1000; // Milliseconds
-const int configLedDoubleClickDurationOn = 200; // Milliseconds
-const int configLedDoubleClickDurationOff = 200; // Milliseconds
+const int fireMinIntensity = 0; // Minimum intensity for campfire flickering on a scale of 0 - 255.
+const int fireMaxIntensity = 255; // Maximum intensity for campfire flickering on a scale of 0 - 255
+const unsigned long fireFlickeringSpeed = 75; // Interval in milliseconds before a new random intensity will be set for a campfire led.
+
+const int configLedSingleClickDurationOn = 200; // How long in milliseconds should the configuration led stay on after a single click on the configuration button.
+const int configLedLongClickDurationOn = 1000; // How long in milliseconds should the configuration led stay on after a long click on the configuration button.
+const int configLedDoubleClickDurationOn = 200; // How long in milliseconds should the configuration led stay on in the on state of blinking after a double click on the configuration button.
+const int configLedDoubleClickDurationOff = 200; // How long in milliseconds should the configuration led stay on in the on state of blinking after a double click on the configuration button.
 
 // == CONFIGURATION =======================================================================================
+// These settings are needed to let the sketch work correctly but should not be changed!
+
 Button2 btnTrigger(BTN_TRIGGER, INPUT_PULLUP,1); // Activate internal pull-up resistor of Wemos D1 mini pin D3
 Button2 btnConfig(BTN_CONFIG); // Uses external 4,7K pull-up resistor
 
-bool eyesOn = false;
-unsigned long eyesStartTimestamp = millis();
-unsigned long blinkShortTimestamp = millis();
-int eyeBlinkCount = eyeBlinkAmount;
-int eyeBlinkShortState = 1;
+bool eyesOn = false; // Trigger for within the loop to turn the eyes on.
+unsigned long eyesStartTimestamp = millis(); // Record default timestamp for eyes logic.
+unsigned long blinkShortTimestamp = millis(); // Record default timestamp for eyes blink logic.
+int eyeBlinkCount = eyeBlinkAmount; // Set the counter (which got decreased) to the value set for amount of blinks of the eyes.
+int eyeBlinkShortState = 1; // Set the initial state for the blinking eyes logic. In this case the blink starts with the on (1) state.
 
-bool stableLight = false;
+bool stableLight = false; // Boolean to detect whter all lights may blink or should be lit permamently. False = blink. True = permanently lid.
 
-bool configLedOn = false;
-int configLedType = 0; // 0 = none, 1 = single click, 2 = long click, 3 = double click
-unsigned long configLedTimestamp = millis();
-int configLedDoubleClickstate = 0;
-int configLedDoubleClickCount = 2;
+unsigned long fireTimestamp = millis(); // Record default timestamp for fire logic.
+
+bool configLedOn = false; // Trigger for within the loop to turn the configuration led on.
+int configLedType = 0; // The sequence how the configuration led should turn on. 0 = none, 1 = single click, 2 = long click, 3 = double click
+unsigned long configLedTimestamp = millis(); // Record default timestamp for the configuration led logic.
+int configLedDoubleClickstate = 0; // Set the initial state for the blinking configuration led logic. In this case the blink starts with the off (0) state.
+int configLedDoubleClickCount = 2; // Set the counter (which got decreased) for the amount of blinks for the configuration led after a double click.
 
 // == BUTTON HANDLING =====================================================================================
+// The following function sets the handlers for all button presses.
 void button_init()
 {
-    btnTrigger.setChangedHandler([](Button2 & b) {
+    btnTrigger.setChangedHandler([](Button2 & b) { // Only press or release would maybe not get triggered correctly so we chose both (change).
        eyesStartTimestamp = millis();
        blinkShortTimestamp = millis();
 
        eyesOn = true;
-       eyeBlinkCount = eyeBlinkAmount; // Reset blink counter
-       eyeBlinkShortState = 1; // Reset blink state
+       eyeBlinkCount = eyeBlinkAmount; // Reset eyes blink counter
+       eyeBlinkShortState = 1; // Reset eyes blink state
        
        Serial.print("Trigger activated! Activating eyes. Timestamp: ");
        Serial.println(eyesStartTimestamp);
@@ -162,6 +172,7 @@ void button_init()
     });
 }
 
+// The following functions handles the button presses
 void button_loop()
 {
     btnTrigger.loop();
@@ -279,14 +290,13 @@ void setup() {
   Serial.println("- READY -");
 }
 
-// Set starting timestamp
-unsigned long lastTimestamp = millis();
-
 void loop() {
   button_loop(); // Poll button states
 
+  // Configuration led
   if(configLedOn == true)
   {
+    // Single click
     if(configLedType == 1){
         if(millis()- configLedTimestamp <= configLedSingleClickDurationOn)
         {
@@ -300,6 +310,7 @@ void loop() {
             configLedType = 0;
         }
     }
+    // Long click
     else if(configLedType == 2){
         if(millis()- configLedTimestamp <= configLedLongClickDurationOn)
         {
@@ -313,15 +324,16 @@ void loop() {
             configLedType = 0;
         }
     }
+    // Double click
     else if(configLedType == 3){
-       //configLedDoubleClickstate = 0;
-       //configLedDoubleClickCount = 2;
         if(configLedDoubleClickCount > 0)
         {
           Serial.print("millis(): ");
           Serial.print(millis());
           Serial.print(", configLedTimestamp: ");
           Serial.println(configLedTimestamp);
+          
+          // Led on
           if(configLedDoubleClickstate == 1){
               Serial.println("configLedDoubleClickstate == 1");
               if(millis() - configLedTimestamp <= configLedDoubleClickDurationOn)
@@ -335,6 +347,7 @@ void loop() {
                   configLedDoubleClickstate = 0; // Set blink state to off
               }
           }
+          // Led off
           else if(configLedDoubleClickstate == 0){
               Serial.println("configLedDoubleClickstate == 0");
               if(millis() - configLedTimestamp <= configLedDoubleClickDurationOff)
@@ -352,16 +365,18 @@ void loop() {
         }
     }
   }
-  
+
+  // Permamently lit fire
   if(stableLight == true)
   {
     analogWrite(LED_FIRE1, fireMaxIntensity);
     analogWrite(LED_FIRE2, fireMaxIntensity);
     analogWrite(LED_FIRE3, fireMaxIntensity);
   }
+  // Flickering fire
   else
   {
-    if(millis()-lastTimestamp > fireFlickeringSpeed)
+    if(millis()-fireTimestamp > fireFlickeringSpeed)
     {
       int randFire1 = random(fireMinIntensity,fireMaxIntensity);
       int randFire2 = random(fireMinIntensity,fireMaxIntensity);
@@ -369,24 +384,26 @@ void loop() {
       analogWrite(LED_FIRE1, randFire1);
       analogWrite(LED_FIRE2, randFire2);
       analogWrite(LED_FIRE3, randFire3);
-      lastTimestamp = millis();
+      fireTimestamp = millis();
     }
   }
+  
+  // Eyes
   if(eyesOn == true)
   {
+    // Within duration set in the settings
     if(millis() - eyesStartTimestamp < eyeActiveDuration)
     {
         digitalWrite(LED_BUILTIN,LOW);
 
-//      analogWrite(LED_EYE1,eyeActiveIntensity);
-//      analogWrite(LED_EYE2,eyeActiveIntensity);
-
+        // Permamently lit eyes
         if(stableLight==true)
         {
           Serial.println("Stable light is activated so not blinking. Just stable lit eyes.");
           analogWrite(LED_EYE1,eyeActiveIntensity);
           analogWrite(LED_EYE2,eyeActiveIntensity);
         }
+        // Blinkling eyes
         else
         {       
             Serial.print("eyeBlinkCount: ");
@@ -406,6 +423,8 @@ void loop() {
                 Serial.print(eyeBlinkShortOff);
                 Serial.print(", eyeBlinkShortState: ");
                 Serial.println(eyeBlinkShortState);
+
+                // Blinking eyes: on
                 if(eyeBlinkShortState == 1){
                     Serial.println("eyeBlinkShortState == 1");
                     if(millis() - blinkShortTimestamp <= eyeBlinkShortOn)
@@ -420,6 +439,7 @@ void loop() {
                         eyeBlinkShortState = 0; // Set blink state to off
                     }
                 }
+                // Blinking eyes: off
                 else if(eyeBlinkShortState == 0){
                     Serial.println("eyeBlinkShortState == 0");
                     if(millis() - blinkShortTimestamp <= eyeBlinkShortOff)
@@ -436,15 +456,16 @@ void loop() {
                     }
                 }
             }
+            // Blink count reached amount of blinks set. Turning the eyes permamently on for dthe duration set to keep eyes on detection of a dice.
             else
             {
-                // Turn light continuously on
                 Serial.println("Eyes continously on");
                 analogWrite(LED_EYE1,eyeActiveIntensity);
                 analogWrite(LED_EYE2,eyeActiveIntensity);
             }
         }      
     }
+    // End of eyes duration reached.
     else
     {
       eyesOn = false;
@@ -452,6 +473,7 @@ void loop() {
       Serial.println(millis());
     }
   }
+  // No dice detected. Keeping eyes dim.
   else
   {
     digitalWrite(LED_BUILTIN,HIGH);
