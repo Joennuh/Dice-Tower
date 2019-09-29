@@ -42,11 +42,11 @@ As long that you do not exceed the following limits you can use any led:
 - Maxmimum 3.3V for the power led (not driven by GPIO but still the 3.3V power of the Wemos D1 mini).
 - Maxmimum 5V for any other led.
 
-As far as we found the data for it we do use the leds and resistors in the table below. We also specify to which power line it will be connected.
+As far as we found the data for it we do use the leds and resistors in the table below. We also specify to which power line it will be connected. On our prototype PCB we did use SMD leds for the continous power led and configuration led with other characteristics and thus we also used other resistors. Please see our [Prototype PCB Wiki page](wiki/Prototype-PCB) for that.
 
 | Amount | Color          | Working voltage | Working current | Function                          | Power | Resistor |
 | -----: | :------------- | :-------------- | :-------------- | :-------------------------------- | :---- | :------- |
-| 2      | red            | 1.9 - 2.1 V     | 20 mA           | Eyes                              | 3.3V  | 100 Ω    |
+| 3      | red            | 1.9 - 2.1 V     | 20 mA           | Eyes & power led                  | 3.3V  | 100 Ω    |
 | 3      | yellow         | 1.9 - 2.1 V     | 20 mA           | Campfire                          | 3.3V  | 100 Ω    |
 | 1      | green          | 1.9 - 2.1 V     | 20 mA           | Configuration / status led        | 3.3V  | 100 Ω    |
 | 20     | cold white     | 3.0 - 3.2 V     | 20 mA           | Lights in the tower               | 5V    | 100 Ω    |
