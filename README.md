@@ -34,7 +34,7 @@ From [EasyEDA](https://www.easyeda.com) you can easily send the Gerber files to 
 I have no assocation to EasyEDA and JLCPCB and thus this explanation is not sponsored by EasyEDA nor JLCPCB.
 
 ### Development board
-The heart of the machine is the Wemos D1 mini. Theoretically any Arduino campatible development board can drive the project but since I have quite a few Wemos D1 mini's lying around I decided to go with that board. Currently the project doesn't use the WiFi capability of the Wemos D1 mini but the advantage of the choise to use this board is that WiFi functions can be added easily later on.
+The heart of the machine is the Wemos D1 mini. Theoretically any Arduino campatible development board can drive the project but since I have quite a few Wemos D1 mini's lying around I decided to go with that board. Currently the project doesn't use the WiFi capability of the Wemos D1 mini but the advantage of the choice to use this board is that WiFi functions can be added easily later on.
 
 ### Leds and resistors
 As long that you do not exceed the following limits you can use any led:
