@@ -44,15 +44,14 @@ As long that you do not exceed the following limits you can use any led:
 
 As far as we found the data for it we do use the leds and resistors in the table below. We also specify to which power line it will be connected.
 
-| Amount | Color          | Working voltage | Working current | Function                       | Power | Resistor |
-| -----: | :------------- | :-------------- | :-------------- | :----------------------------- | :---- | :------- |
-| 2      | red            | 1.9 - 2.1 V     | 20 mA           | Eyes                           | 3.3V  | 100 Ω    |
-| 3      | yellow         | 1.9 - 2.1 V     | 20 mA           | Campfire                       | 3.3V  | 100 Ω    |
-| 1      | green          | 1.9 - 2.1 V     | 20 mA           | Configuration / status led     | 3.3V  | 100 Ω    |
-| 20     | cold white     | 3.0 - 3.2 V     | 20 mA           | Lights in the tower            | 5V    | 100 Ω    |
-| 4      | warm white (1) | 3.1 V (1)       | 20 mA (1)       | Lanterns around collection bin | 5V    | 100 Ω    |
-
-You will also need a 4.7 kΩ resistor for the configuration button.
+| Amount | Color          | Working voltage | Working current | Function                          | Power | Resistor |
+| -----: | :------------- | :-------------- | :-------------- | :-------------------------------- | :---- | :------- |
+| 2      | red            | 1.9 - 2.1 V     | 20 mA           | Eyes                              | 3.3V  | 100 Ω    |
+| 3      | yellow         | 1.9 - 2.1 V     | 20 mA           | Campfire                          | 3.3V  | 100 Ω    |
+| 1      | green          | 1.9 - 2.1 V     | 20 mA           | Configuration / status led        | 3.3V  | 100 Ω    |
+| 20     | cold white     | 3.0 - 3.2 V     | 20 mA           | Lights in the tower               | 5V    | 100 Ω    |
+| 4      | warm white (1) | 3.1 V (1)       | 20 mA (1)       | Lanterns around collection bin    | 5V    | 100 Ω    |
+| 1      | -              | -               | -               | Resistor for configuration button | 3.3V  | 4.7 kΩ   |
 
 (1): The seller of the miniature lanterns did not specify the exact color, working voltage and working current. The seller only specified that it should operate on 3 to 5 volts. I assume it will be a warm white led with a working voltage of 3.1 and a working current of 20 mA.
 
