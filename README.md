@@ -42,7 +42,7 @@ As long that you do not exceed the following limits you can use any led:
 - Maxmimum 3.3V for the power led (not driven by GPIO but still the 3.3V power of the Wemos D1 mini).
 - Maxmimum 5V for any other led.
 
-As far as we found the data for it we do use the leds and resistors in the table below. We also specify to which power line it will be connected. On our prototype PCB we did use SMD leds for the continous power led and configuration led with other characteristics and thus we also used other resistors. Please see our [Prototype PCB Wiki page](/Joennuh/Dice-Tower/wiki/Prototype-PCB) for that.
+As far as we found the data for it we do use the leds and resistors in the table below. We also specify to which power line it will be connected. On our prototype PCB we did use SMD leds for the continous power led and configuration led with other characteristics and thus we also used other resistors. Please see our [Prototype PCB Wiki page](https://github.com/Joennuh/Dice-Tower/wiki/Prototype-PCB) for that.
 
 | Amount | Color          | Working voltage | Working current | Function                          | Power | Resistor |
 | -----: | :------------- | :-------------- | :-------------- | :-------------------------------- | :---- | :------- |
