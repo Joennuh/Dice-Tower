@@ -3,6 +3,8 @@
  * Author                 : The Big Site / Jeroen Maathuis (Joennuh)
  * E-mail                 : j [dot] maathuis [at] gmail [dot] com / software [at] thebigsite [dot] nl)
  * Intitial creation date : September 24th, 2019
+ * Github                 : https://github.com/Joennuh/Dice-Tower
+ * Wiki                   : https://github.com/Joennuh/Dice-Tower/wiki
  * 
  * This sketch is meant for a Dice Tower. It is a sketch for a Wemos D1 mini. It drives 2 red leds for
  * the eyes of a skull and 3 leds for a campfire. Also there is 1 button to initiate blinking eyes and
