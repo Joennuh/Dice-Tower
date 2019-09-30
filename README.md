@@ -11,11 +11,11 @@
 This README.md needs to be enriched with photo's, images, etc. This is something I strive to add during the progress of the project.
 
 ## Short introduction
-The Dice Tower project is a project where a good friend / ex-colleague came up with. He wanted to build a Dice Tower himself. To get an idea of what a Dice Tower could look like please Google the term: <https://www.google.com/search?tbm=isch&q=dice+tower>
+The Dice Tower project is a project where my good friend / ex-colleague Nico Jongsma (aka Axios, not a Github user) came up with. He wanted to build a Dice Tower himself. To get an idea of what a Dice Tower could look like please Google the term: <https://www.google.com/search?tbm=isch&q=dice+tower>
 
-My friend doesn't have the knowledge of the electronics and programming. The more I explained which parts and skills are needed, the simpler the electronic part of the project should be according to my friend. For me it was more like a challenge to get the elektronics working in such a way that totally fits in his cool looking Dice Tower.
+Nico doesn't have the knowledge of the electronics and programming. The more I explained which parts and skills are needed, the simpler the electronic part of the project should be according to Nico. For me it was more like a challenge to get the elektronics working in such a way that totally fits in his cool looking Dice Tower.
 
-My friend wanted to build a Dice Tower which have a kind of skull on the front of the tower. In that skulls there will be placed 2 red leds as eyes which should blink when a dice is put in the tower. Then he wanted a campfire somehere on the object. This will be simmulated with 3 yellow leds (lights up as orange in my opinion). Then he wants to connect 4 miniature lanterns which should be permanantly lit. And finally he also wants to put 20 cold white leds in the tower which also should be lit permanently.
+Nico wanted to build a Dice Tower which have a kind of skull on the front of the tower. In that skulls there will be placed 2 red leds as eyes which should blink when a dice is put in the tower. Then he wanted a campfire somehere on the object. This will be simmulated with 3 yellow leds (lights up as orange in my opinion). Then he wants to connect 4 miniature lanterns which should be permanantly lit. And finally he also wants to put 20 cold white leds in the tower which also should be lit permanently.
 
 The things I added to the ideas of my colleague:
 - A Wemos D1 mini to add interaction and animation effects to the Dice Tower.
@@ -42,11 +42,11 @@ As long that you do not exceed the following limits you can use any led:
 - Maxmimum 3.3V for the power led (not driven by GPIO but still the 3.3V power of the Wemos D1 mini).
 - Maxmimum 5V for any other led.
 
-As far as we found the data for it we do use the leds and resistors in the table below. We also specify to which power line it will be connected.
+As far as we found the data for it we do use the leds and resistors in the table below. We also specify to which power line it will be connected. On our prototype PCB we did use SMD leds for the continous power led and configuration led with other characteristics and thus we also used other resistors. Please see our [Prototype PCB Wiki page](https://github.com/Joennuh/Dice-Tower/wiki/Prototype-PCB) for that.
 
 | Amount | Color          | Working voltage | Working current | Function                          | Power | Resistor |
 | -----: | :------------- | :-------------- | :-------------- | :-------------------------------- | :---- | :------- |
-| 2      | red            | 1.9 - 2.1 V     | 20 mA           | Eyes                              | 3.3V  | 100 Ω    |
+| 3      | red            | 1.9 - 2.1 V     | 20 mA           | Eyes & power led                  | 3.3V  | 100 Ω    |
 | 3      | yellow         | 1.9 - 2.1 V     | 20 mA           | Campfire                          | 3.3V  | 100 Ω    |
 | 1      | green          | 1.9 - 2.1 V     | 20 mA           | Configuration / status led        | 3.3V  | 100 Ω    |
 | 20     | cold white     | 3.0 - 3.2 V     | 20 mA           | Lights in the tower               | 5V    | 100 Ω    |
