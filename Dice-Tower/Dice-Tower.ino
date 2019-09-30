@@ -58,6 +58,7 @@
 // == SETTINGS ============================================================================================
 // These settings can be change to your own needs.
 
+// EYE LEDS
 const int eyeIdleIntensity = 20; // Idle intensity for the eyes on a scale of 0 to 255
 const int eyeActiveIntensity = 255; // Active intensity for the eyes on a scale of 0 to 255
 const int eyeActiveDuration = 3000; // How long the eyes should stay active on a detected dice. In milliseconds.
@@ -66,10 +67,12 @@ const int eyeBlinkShortOn = 100; // Duration of the on state while blinking. In 
 const int eyeBlinkShortOff = 100; // Duration of the off state while blinking. In milliseconds.
 const int eyeBlinkAmount = 3; // How much blinks of the eyes during the blink state on a detected dice.
 
+// FIRE LEDS
 const int fireMinIntensity = 0; // Minimum intensity for campfire flickering on a scale of 0 - 255.
 const int fireMaxIntensity = 255; // Maximum intensity for campfire flickering on a scale of 0 - 255
 const unsigned long fireFlickeringSpeed = 75; // Interval in milliseconds before a new random intensity will be set for a campfire led.
 
+// CONFIGURATION LED
 const int configLedSingleClickDurationOn = 200; // How long in milliseconds should the configuration led stay on after a single click on the configuration button.
 const int configLedLongClickDurationOn = 1000; // How long in milliseconds should the configuration led stay on after a long click on the configuration button.
 const int configLedDoubleClickDurationOn = 200; // How long in milliseconds should the configuration led stay on in the on state of blinking after a double click on the configuration button.
