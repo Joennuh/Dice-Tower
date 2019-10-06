@@ -48,6 +48,18 @@
 // == DEFINES =============================================================================================
 // You can change the values of this defines but it is advisable to not do this.
 
+#ifdef ESP32
+// Define pin assignment for MH TK LIVE MiniKit ESP32
+#define LED_CONFIG 26
+#define LED_EYE1 22
+#define LED_EYE2 21
+#define LED_FIRE1 19
+#define LED_FIRE2 23
+#define LED_FIRE3 5
+#define BTN_TRIGGER 17
+#define BTN_CONFIG 18
+#else
+// Define pin assignment for Wemos D1 mini
 #define LED_CONFIG D0
 #define LED_EYE1 D1
 #define LED_EYE2 D2
@@ -56,9 +68,16 @@
 #define LED_FIRE3 D8
 #define BTN_TRIGGER D3
 #define BTN_CONFIG D5
+#endif
 
 // == SETTINGS ============================================================================================
 // These settings can be change to your own needs.
+
+#ifdef ESP32
+// Setting PWM properties (only for MH TK LIVE MiniKit ESP32)
+const int pwmFreq = 5000;
+const int pwmResolution = 8;
+#endif
 
 // EYE LEDS
 const int eyeIdleIntensity = 20; // Idle intensity for the eyes on a scale of 0 to 255
@@ -69,10 +88,23 @@ const int eyeBlinkShortOn = 100; // Duration of the on state while blinking. In 
 const int eyeBlinkShortOff = 100; // Duration of the off state while blinking. In milliseconds.
 const int eyeBlinkAmount = 3; // How much blinks of the eyes during the blink state on a detected dice.
 
+#ifdef ESP32
+// Define PWM channel for MH TK LIVE MiniKit ESP32
+const int pwmEyesChannel = 0;
+#endif
+
 // FIRE LEDS
 const int fireMinIntensity = 0; // Minimum intensity for campfire flickering on a scale of 0 - 255.
 const int fireMaxIntensity = 255; // Maximum intensity for campfire flickering on a scale of 0 - 255
 const unsigned long fireFlickeringSpeed = 75; // Interval in milliseconds before a new random intensity will be set for a campfire led.
+
+
+#ifdef ESP32
+// Define PWM channel for for MH TK LIVE MiniKit ESP32
+const int pwmFire1Channel = 1;
+const int pwmFire2Channel = 2;
+const int pwmFire3Channel = 3;
+#endif
 
 // CONFIGURATION LED
 const int configLedSingleClickDurationOn = 200; // How long in milliseconds should the configuration led stay on after a single click on the configuration button.
@@ -222,6 +254,31 @@ void setup() {
   digitalWrite(LED_CONFIG, LOW);
   Serial.println("DONE");
 
+#ifdef ESP32
+  // With the lack of analogWrite() function for ESP32 use PWM with the ledc... functions on MH TH LIVE MiniKit ESP32
+  Serial.print("Configure PWM channel for leds for eyes... ");
+  ledcSetup(pwmEyesChannel, pwmFreq, pwmResolution);
+  Serial.println("DONE");
+  
+  Serial.print("Attach eye 1 to PWM channel for eyes... ");
+  ledcAttachPin(LED_EYE1, pwmEyesChannel);
+  Serial.println("DONE");
+  
+  Serial.print("Attach eye 2 to PWM channel for eyes... ");
+  ledcAttachPin(LED_EYE2, pwmEyesChannel);
+  Serial.println("DONE");
+
+  Serial.print("Turning both eyes on... ");
+  ledcWrite(pwmEyesChannel, 255);
+  Serial.println("DONE");
+
+  delay(500);
+
+  Serial.print("Turning both eyes off... ");
+  ledcWrite(pwmEyesChannel, 0);
+  Serial.println("DONE");
+#else
+  // For Wemos D1 mini we can use analogWrite()
   // Initialize eye 1, test it and turn it off
   Serial.print("Configure led eye 1... ");
   pinMode(LED_EYE1, OUTPUT);
@@ -233,7 +290,7 @@ void setup() {
   Serial.print("Turning led eye 1 off... ");
   analogWrite(LED_EYE1, 0);
   Serial.println("DONE");
-
+#endif
   // Initialize eye 2, test it and turn it off
   Serial.print("Configure led eye 2... ");
   pinMode(LED_EYE2, OUTPUT);
