@@ -41,7 +41,7 @@ Below is a photo of the 2 compatible Arduino boards. Click the photo to view a e
 
 [![Warm up solder pad](img/thumb_compatible_arduino_boards.jpg)](img/compatible_arduino_boards.jpg)
 
-On the left you see the Wemos D1 mini and on the right the MH-ET LIVE MIniKit ESP32.
+On the left you see the Wemos D1 mini and on the right the MH-ET LIVE MiniKit ESP32.
 
 ### Leds and resistors
 As long that you do not exceed the following limits you can use any led:
