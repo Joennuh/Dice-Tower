@@ -2,6 +2,7 @@
 **Create some interaction effects for your homemade Dice Tower.**
 
 ![ESP8266](https://img.shields.io/badge/ESP-8266-000000.svg?longCache=true&style=flat&colorA=CC101F)
+![ESP32](https://img.shields.io/badge/ESP-32-000000.svg?longCache=true&style=flat&colorA=CC101F)
 [![GitHub license](https://img.shields.io/github/license/Joennuh/Dice-Tower)](https://github.com/Joennuh/Dice-Tower/blob/master/LICENSE)
 ![GitHub repo size](https://img.shields.io/github/repo-size/Joennuh/Dice-Tower)
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/Joennuh/Dice-Tower/master)
@@ -18,28 +19,29 @@ Nico doesn't have the knowledge of the electronics and programming. The more I e
 Nico wanted to build a Dice Tower which have a kind of skull on the front of the tower. In that skulls there will be placed 2 red leds as eyes which should blink when a dice is put in the tower. Then he wanted a campfire somehere on the object. This will be simmulated with 3 yellow leds (lights up as orange in my opinion). Then he wants to connect 4 miniature lanterns which should be permanantly lit. And finally he also wants to put 20 cold white leds in the tower which also should be lit permanently.
 
 The things I added to the ideas of my colleague:
-- A Wemos D1 mini to add interaction and animation effects to the Dice Tower.
+- A Wemos D1 mini to add interaction and animation effects to the Dice Tower. Later on in the project I added support for the MH-ET LIVE MiniKit ESP32 which has exactly the same pin layout as the Wemos D1 mini but had ESP32 onboard instead of ESP8266 plus extra pins.
 - A SW-18010P vibration sensor to detect the dice rolling through the tube of the Dice Tower.
 - A configuration button.
 - A configuration light (indicates whether a button press has been fetched or provide the status of things going on).
 - A power-light to see whether the project gets powered correctly.
-- A nice PCB design to flatten the space needed to drive all the leds. The original idea consisted of a main board with all connections to the leds soldered on it, then put a "interactive module" on top of that and at last a Wemos D1 mini on top of that. With a nice own designed PCB we got 1 layer less.
+- A nice PCB design to flatten the space needed to drive all the leds. The original idea consisted of a main board with all connections to the leds soldered on it, then put a "interactive module" on top of that and at last a Wemos D1 mini or MH-ET LIVE MiniKit ESP32 on top of that. With a nice own designed PCB we got 1 layer less.
 
 ## Materials
 ### PCB
-Ofcourse you can build the project on a prototype board but if you want a nice looking PCB you can let a PCB manafacturer create it. I have designed a PCB at [EasyEDA](https://www.easyeda.com). You can find it here: <https://easyeda.com/Joennuh/Dice-Tower>
+Ofcourse you can build the project on a prototype board but if you want a nice looking PCB you can let a PCB manafacturer create it. I have designed a PCB at [EasyEDA](https://www.easyeda.com). You can find it here: <https://easyeda.com/Joennuh/Dice-Tower> The current design does not utilize extra pins from the MH-ET LIVE MiniKit ESP32 but the basic functionality works with both the Wemos D1 mini as the MH-ET LIVE MiniKit ESP32.
 
 From [EasyEDA](https://www.easyeda.com) you can easily send the Gerber files to [JLCPCB](https://www.jlcpcb.com) without the need to download and upload the Gerber files. Manufacturing the PCB already starts at $2,= and you nowadays can select several colors. I would advise to use black to keep in the theme of a dark Dice Tower with skull.
 
 I have no assocation to EasyEDA and JLCPCB and thus this explanation is not sponsored by EasyEDA nor JLCPCB.
 
 ### Development board
-The heart of the machine is the Wemos D1 mini. Theoretically any Arduino campatible development board can drive the project but since I have quite a few Wemos D1 mini's lying around I decided to go with that board. Currently the project doesn't use the WiFi capability of the Wemos D1 mini but the advantage of the choice to use this board is that WiFi functions can be added easily later on.
+The heart of the machine is the Wemos D1 mini or the MH-ET LIVE MiniKit ESP32. Theoretically any Arduino campatible development board can drive the project but since I had quite a few Wemos D1 mini's lying around I decided to go with that board. Later on the MH-ET LIVE MiniKit ESP32 got my interest since it has the same pin layout and added support for this board to the project. Currently the project doesn't use the WiFi capability of the Wemos D1 mini and MH-ET LIVE MiniKit ESP32 but the advantage of the choice to use these 2 boards is that WiFi functions can be added easily later on.
 
 ### Leds and resistors
 As long that you do not exceed the following limits you can use any led:
 - Maxmimum 3.3V, 12 mA for the leds driven by the Wemos D1 mini (eyes, campfire and configuration/status led).
-- Maxmimum 3.3V for the power led (not driven by GPIO but still the 3.3V power of the Wemos D1 mini).
+- Maxmimum 3.3V, 40 mA for the leds driven by the MH-ET LIVE MiniKit ESP32 (eyes, campfire and configuration/status led)
+- Maxmimum 3.3V for the power led (not driven by GPIO but still uses the 3.3V power of the Wemos D1 mini / MH-ET LIVE MiniKit ESP32).
 - Maxmimum 5V for any other led.
 
 As far as we found the data for it we do use the leds and resistors in the table below. We also specify to which power line it will be connected. On our prototype PCB we did use SMD leds for the continous power led and configuration led with other characteristics and thus we also used other resistors. Please see our [Prototype PCB Wiki page](https://github.com/Joennuh/Dice-Tower/wiki/Prototype-PCB) for that.
@@ -59,7 +61,7 @@ As far as we found the data for it we do use the leds and resistors in the table
 Any button could do but for the PCB I have chosen for a sidewards 6 x 6 mm tactile button. Any depth of the button could do but I use the default one of 5 mm.
 
 ### Trigger
-The trigger provides a signal to the D3 pin of the Wemos D1 mini when a dice rolling through the tube of the Dice Tower has been detected. The trigger can be a anything that shorts the D3 pin of the Wemos D1 mini to ground. This could be for example 2 pieces of aluminium hitting each other when a dice rolls on it. Me and my friend choose to use a SW-18010P vibration sensor to sens the vibration fot the dice through the tube. It's best to attach the vibration sensor on the outside of the tube somehwere on the almost the end of the tube. It is also best to leave some space around the end of the tube so that the tube can vibrate enough to let the vibration sensor detect vibrations.
+The trigger provides a signal to the D3 pin of the Wemos D1 mini or GPIO 17 pin of the MH-ET LIVE MiniKit ESP32 when a dice rolling through the tube of the Dice Tower has been detected. The trigger can be a anything that shorts the D3 pin of the Wemos D1 mini or GPIO 17 pin of the MH-ET LIVE MiniKit ESP32 to ground. This could be for example 2 pieces of aluminium hitting each other when a dice rolls on it. Me and my friend choose to use a SW-18010P vibration sensor to sens the vibration fot the dice through the tube. It's best to attach the vibration sensor on the outside of the tube somehwere on the almost the end of the tube. It is also best to leave some space around the end of the tube so that the tube can vibrate enough to let the vibration sensor detect vibrations.
 
 ### Header pins
 There are several ways to connect all leds to the mainboard but on the PCB I designed have been decided in a way that you can choose to use pin headers (female or male). In that case you need a double row header. I would advise an easily breakable female double row header.
@@ -75,13 +77,13 @@ Ofcourse you also will need a micro-USB cable to power the board through the Wem
 To protect the leads of the leds it is advisble to use some heatshrink tubes around the exposed leads. This is to prevent any accidental shortage.
 
 ## Software
-The software can be downloaded from this Github repository under the GPL 3.0 license. Currently the software doesn't use WiFi cpability of the Wemos D1 mini but this can be subject of change in the future.
+The software can be downloaded from this Github repository under the GPL 3.0 license. Currently the software doesn't use WiFi capability of the Wemos D1 mini / MH-ET LIVE MiniKit ESP32 but this can be subject of change in the future.
 
 ### Startup
-By default at startup all leds will go on and off one by one to test the leds. During this test the onboard led of the Wemos D1 mini will stay on.
+By default at startup all leds will go on and off one by one to test the leds. On the MH-ET LIVE MiniKit ESP32 the eye leds will go on together instead of individually during the startup fase. During startup the onboard led of the Wemos D1 mini / MH-ET LIVE MiniKit ESP32 will stay on.
 
 ### Default program
-After the selftest the yellow leds will start flickering at random intensity to simulate a campfire. The red leds of the eyes will stay lit permanently on a low intensity. When pin D3 of the Wemos D1 mini got HIGH the red leds will blink a few times and they stay on for about 2 seconds.
+After the selftest the yellow leds will start flickering at random intensity to simulate a campfire. The red leds of the eyes will stay lit permanently on a low intensity. When pin D3 of the Wemos D1 mini or GPIO 17 of the MH-ET LIVE MiniKit ESP32 got HIGH the red leds will blink a few times and they stay on for about 2 seconds. This can also be triggered by a short press on the configuration button which is connected to D5 on the Wemos D1 mini or GPIO 18 of the MH-ET LIVE MiniKit ESP32.
 
 ### Configuration button
 A short press on the configuration button will manually trigger the blinking red leds. The green configuration / status led will shortly blink to confirm the short press.
