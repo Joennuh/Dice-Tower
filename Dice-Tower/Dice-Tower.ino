@@ -6,10 +6,10 @@
  * Github                 : https://github.com/Joennuh/Dice-Tower
  * Wiki                   : https://github.com/Joennuh/Dice-Tower/wiki
  * 
- * This sketch is meant for a Dice Tower. It is a sketch for a Wemos D1 mini. It drives 2 red leds for
- * the eyes of a skull and 3 leds for a campfire. Also there is 1 button to initiate blinking eyes and
- * 1 button to toggle between steady or flickering / blinking lights.
- * Although it is developed for a WiFi capable Arduino board the WiFi capabilities aren't used.
+ * This sketch is meant for a Dice Tower. It is a sketch for a Wemos D1 mini or a MH TK LIVE MiniKit ESP32.
+ * It drives 2 red leds for the eyes of a skull and 3 leds for a campfire. Also there is 1 button to
+ * initiate blinking eyes and 1 button to toggle between steady or flickering / blinking lights.
+ * Although it is developed for WiFi capable Arduino boards the WiFi capabilities aren't used.
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,12 +30,12 @@
  * -  Button2: https://github.com/LennartHennigs/Button2
  * And probably I've forgotten to mention sources. In that case: I'm sorry for that.
  * 
- * Hardware configuration:
- * - Wemos D1 mini
- * - 3 yellow leds (each attached with 100R resistor to D6, D7 and D8)
- * - 2 red leds (each attached with 100R resistor to D1 and D2)
- * - 1 button (attached with external 4,7K pull-up resistor to D5)
- * - 1 any kind of switch to trigger blinking eyes (attached to D3)
+ * Hardware configuration (after the slash are the GPIO pins on MH TK LIVE MiniKit ESP32):
+ * - Wemos D1 mini / MH TK LIVE MiniKit ESP32
+ * - 3 yellow leds (each attached with 100R resistor to D6, D7 and D8 / 19, 23 and 5)
+ * - 2 red leds (each attached with 100R resistor to D1 and D2 / 22 and 21)
+ * - 1 button (attached with external 4,7K pull-up resistor to D5 / 18)
+ * - 1 any kind of switch to trigger blinking eyes (attached to D3 / 17)
 ************************************************************************************************************/
 // Sketch metadata. Please do not change the following lines unless you plan to release an fork. In that case please add some information about you to these lines.
 #define PROG_NAME "Dice Tower"
@@ -117,7 +117,7 @@ const int configLedDoubleClickDurationOff = 200; // How long in milliseconds sho
 // == CONFIGURATION =======================================================================================
 // These settings are needed to let the sketch work correctly but should not be changed!
 
-Button2 btnTrigger(BTN_TRIGGER, INPUT_PULLUP,1); // Activate internal pull-up resistor of Wemos D1 mini pin D3
+Button2 btnTrigger(BTN_TRIGGER, INPUT_PULLUP,1); // Activate internal pull-up resistor of Wemos D1 mini pin D3 / MH TK LIVE MiniKit ESP32 pin 17
 Button2 btnConfig(BTN_CONFIG); // Uses external 4,7K pull-up resistor
 
 bool eyesOn = false; // Trigger for within the loop to turn the eyes on.
