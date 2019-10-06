@@ -6,7 +6,7 @@
  * Github                 : https://github.com/Joennuh/Dice-Tower
  * Wiki                   : https://github.com/Joennuh/Dice-Tower/wiki
  * 
- * This sketch is meant for a Dice Tower. It is a sketch for a Wemos D1 mini or a MH TK LIVE MiniKit ESP32.
+ * This sketch is meant for a Dice Tower. It is a sketch for a Wemos D1 mini or a MH-ET LIVE MiniKit ESP32.
  * It drives 2 red leds for the eyes of a skull and 3 leds for a campfire. Also there is 1 button to
  * initiate blinking eyes and 1 button to toggle between steady or flickering / blinking lights.
  * Although it is developed for WiFi capable Arduino boards the WiFi capabilities aren't used.
@@ -30,8 +30,8 @@
  * -  Button2: https://github.com/LennartHennigs/Button2
  * And probably I've forgotten to mention sources. In that case: I'm sorry for that.
  * 
- * Hardware configuration (after the slash are the GPIO pins on MH TK LIVE MiniKit ESP32):
- * - Wemos D1 mini / MH TK LIVE MiniKit ESP32
+ * Hardware configuration (after the slash are the GPIO pins on MH-ET LIVE MiniKit ESP32):
+ * - Wemos D1 mini / MH-ET LIVE MiniKit ESP32
  * - 3 yellow leds (each attached with 100R resistor to D6, D7 and D8 / 19, 23 and 5)
  * - 2 red leds (each attached with 100R resistor to D1 and D2 / 22 and 21)
  * - 1 button (attached with external 4,7K pull-up resistor to D5 / 18)
@@ -49,7 +49,7 @@
 // You can change the values of this defines but it is advisable to not do this.
 
 #ifdef ESP32
-// Define pin assignment for MH TK LIVE MiniKit ESP32
+// Define pin assignment for MH-ET LIVE MiniKit ESP32
 #define LED_CONFIG 26
 #define LED_EYE1 22
 #define LED_EYE2 21
@@ -76,7 +76,7 @@
 // These settings can be change to your own needs.
 
 #ifdef ESP32
-// Setting PWM properties (only for MH TK LIVE MiniKit ESP32)
+// Setting PWM properties (only for MH-ET LIVE MiniKit ESP32)
 const int pwmFreq = 5000;
 const int pwmResolution = 8;
 #endif
@@ -91,7 +91,7 @@ const int eyeBlinkShortOff = 100; // Duration of the off state while blinking. I
 const int eyeBlinkAmount = 3; // How much blinks of the eyes during the blink state on a detected dice.
 
 #ifdef ESP32
-// Define PWM channel for MH TK LIVE MiniKit ESP32
+// Define PWM channel for MH-ET LIVE MiniKit ESP32
 const int pwmEyesChannel = 0;
 #endif
 
@@ -102,7 +102,7 @@ const unsigned long fireFlickeringSpeed = 75; // Interval in milliseconds before
 
 
 #ifdef ESP32
-// Define PWM channel for for MH TK LIVE MiniKit ESP32
+// Define PWM channel for for MH-ET LIVE MiniKit ESP32
 const int pwmFire1Channel = 1;
 const int pwmFire2Channel = 2;
 const int pwmFire3Channel = 3;
@@ -117,7 +117,7 @@ const int configLedDoubleClickDurationOff = 200; // How long in milliseconds sho
 // == CONFIGURATION =======================================================================================
 // These settings are needed to let the sketch work correctly but should not be changed!
 
-Button2 btnTrigger(BTN_TRIGGER, INPUT_PULLUP,1); // Activate internal pull-up resistor of Wemos D1 mini pin D3 / MH TK LIVE MiniKit ESP32 pin 17
+Button2 btnTrigger(BTN_TRIGGER, INPUT_PULLUP,1); // Activate internal pull-up resistor of Wemos D1 mini pin D3 / MH-ET LIVE MiniKit ESP32 pin 17
 Button2 btnConfig(BTN_CONFIG); // Uses external 4,7K pull-up resistor
 
 bool eyesOn = false; // Trigger for within the loop to turn the eyes on.
