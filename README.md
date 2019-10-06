@@ -38,7 +38,9 @@ I have no assocation to EasyEDA and JLCPCB and thus this explanation is not spon
 The heart of the machine is the Wemos D1 mini or the MH-ET LIVE MiniKit ESP32. Theoretically any Arduino campatible development board can drive the project but since I had quite a few Wemos D1 mini's lying around I decided to go with that board. Later on the MH-ET LIVE MiniKit ESP32 got my interest since it has the same pin layout and added support for this board to the project. Currently the project doesn't use the WiFi capability of the Wemos D1 mini and MH-ET LIVE MiniKit ESP32 but the advantage of the choice to use these 2 boards is that WiFi functions can be added easily later on.
 
 Below is a photo of the 2 compatible Arduino boards. Click the photo to view a enlarged version of the photo.
+
 [![Warm up solder pad](img/thumb_compatible_arduino_boards.jpg)](img/compatible_arduino_boards.jpg)
+
 On the left you see the Wemos D1 mini and on the right the MH-ET LIVE MIniKit ESP32.
 
 ### Leds and resistors
