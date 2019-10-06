@@ -58,6 +58,7 @@
 #define LED_FIRE3 5
 #define BTN_TRIGGER 17
 #define BTN_CONFIG 18
+#define ANALOG_RANDOMSEED 36 // Leave this pin unconnected, the noise of this pin is used for the random creator
 #else
 // Define pin assignment for Wemos D1 mini
 #define LED_CONFIG D0
@@ -68,6 +69,7 @@
 #define LED_FIRE3 D8
 #define BTN_TRIGGER D3
 #define BTN_CONFIG D5
+#define ANALOG_RANDOMSEED A0 // Leave this pin unconnected, the noise of this pin is used for the random creator
 #endif
 
 // == SETTINGS ============================================================================================
@@ -133,6 +135,15 @@ int configLedType = 0; // The sequence how the configuration led should turn on.
 unsigned long configLedTimestamp = millis(); // Record default timestamp for the configuration led logic.
 int configLedDoubleClickstate = 0; // Set the initial state for the blinking configuration led logic. In this case the blink starts with the off (0) state.
 int configLedDoubleClickCount = 2; // Set the counter (which got decreased) for the amount of blinks for the configuration led after a double click.
+
+// Set active states for LED_BUILTIN. On ESP8266 the led is active on LOW, but on ESP32 it is active on HIGH.
+#ifdef ESP32
+#define ONBOARD_ON HIGH
+#define ONBOARD_OFF LOW
+#else
+#define ONBOARD_ON LOW
+#define ONBOARD_OFF HIGH
+#endif
 
 // == BUTTON HANDLING =====================================================================================
 // The following function sets the handlers for all button presses.
@@ -233,15 +244,17 @@ void setup() {
   // Intialize buttons
   button_init();
 
+// -- ONBOARD LED -----------------------------------------------------------------------------------------
   // Initialize onboard led, test it and leave it on until fully booted
   Serial.print("Configure onboard led... ");
   pinMode(LED_BUILTIN,OUTPUT);
   Serial.println("DONE");
   Serial.print("Turning onboard led on...");
-  digitalWrite(LED_BUILTIN,LOW); // Onboard led is active low
+  digitalWrite(LED_BUILTIN,ONBOARD_ON);
   Serial.println("DONE");
   delay(500);
 
+// -- CONFIG LED ------------------------------------------------------------------------------------------
    // Initialize config led, test it and turn it off
   Serial.print("Configure config led... ");
   pinMode(LED_CONFIG, OUTPUT);
@@ -254,21 +267,22 @@ void setup() {
   digitalWrite(LED_CONFIG, LOW);
   Serial.println("DONE");
 
+// -- EYE LEDS --------------------------------------------------------------------------------------------
 #ifdef ESP32
   // With the lack of analogWrite() function for ESP32 use PWM with the ledc... functions on MH TH LIVE MiniKit ESP32
   Serial.print("Configure PWM channel for leds for eyes... ");
   ledcSetup(pwmEyesChannel, pwmFreq, pwmResolution);
   Serial.println("DONE");
   
-  Serial.print("Attach eye 1 to PWM channel for eyes... ");
+  Serial.print("Attach led eye 1 to PWM channel for eyes... ");
   ledcAttachPin(LED_EYE1, pwmEyesChannel);
   Serial.println("DONE");
   
-  Serial.print("Attach eye 2 to PWM channel for eyes... ");
+  Serial.print("Attach led eye 2 to PWM channel for eyes... ");
   ledcAttachPin(LED_EYE2, pwmEyesChannel);
   Serial.println("DONE");
 
-  Serial.print("Turning both eyes on... ");
+  Serial.print("Turning both eye leds on... ");
   ledcWrite(pwmEyesChannel, 255);
   Serial.println("DONE");
 
@@ -290,7 +304,7 @@ void setup() {
   Serial.print("Turning led eye 1 off... ");
   analogWrite(LED_EYE1, 0);
   Serial.println("DONE");
-#endif
+
   // Initialize eye 2, test it and turn it off
   Serial.print("Configure led eye 2... ");
   pinMode(LED_EYE2, OUTPUT);
@@ -302,7 +316,31 @@ void setup() {
   Serial.print("Turning led eye 2 off... ");
   analogWrite(LED_EYE2, 0);
   Serial.println("DONE");
+#endif
 
+// -- FIRE 1 LED ------------------------------------------------------------------------------------------
+#ifdef ESP32
+  // With the lack of analogWrite() function for ESP32 use PWM with the ledc... functions on MH TH LIVE MiniKit ESP32
+  Serial.print("Configure PWM channel for led fire 1... ");
+  ledcSetup(pwmFire1Channel, pwmFreq, pwmResolution);
+  Serial.println("DONE");
+  
+  Serial.print("Attach led fire 1 to PWM channel for eyes... ");
+  ledcAttachPin(LED_FIRE1, pwmFire1Channel);
+  Serial.println("DONE");
+
+  Serial.print("Turning led fire 1 on... ");
+  ledcWrite(pwmFire1Channel, 255);
+  Serial.println("DONE");
+
+  delay(500);
+
+  Serial.print("Turning led fire 1 off... ");
+  ledcWrite(pwmFire1Channel, 0);
+  Serial.println("DONE");
+  
+#else
+  // For Wemos D1 mini we can use analogWrite()
   // Initialize fire 1, test it and turn it off
   Serial.print("Configure led fire 1... ");
   pinMode(LED_FIRE1, OUTPUT);
@@ -314,7 +352,31 @@ void setup() {
   Serial.print("Turning led fire 1 off... ");
   analogWrite(LED_FIRE1, 0);
   Serial.println("DONE");
+#endif
 
+// -- FIRE 2 LED ------------------------------------------------------------------------------------------
+#ifdef ESP32
+  // With the lack of analogWrite() function for ESP32 use PWM with the ledc... functions on MH TH LIVE MiniKit ESP32
+  Serial.print("Configure PWM channel for led fire 2... ");
+  ledcSetup(pwmFire2Channel, pwmFreq, pwmResolution);
+  Serial.println("DONE");
+  
+  Serial.print("Attach led fire 2 to PWM channel for eyes... ");
+  ledcAttachPin(LED_FIRE2, pwmFire2Channel);
+  Serial.println("DONE");
+
+  Serial.print("Turning led fire 2 on... ");
+  ledcWrite(pwmFire2Channel, 255);
+  Serial.println("DONE");
+
+  delay(500);
+
+  Serial.print("Turning led fire 2 off... ");
+  ledcWrite(pwmFire2Channel, 0);
+  Serial.println("DONE");
+  
+#else
+  // For Wemos D1 mini we can use analogWrite()
   // Initialize fire 2, test it and turn it off
   Serial.print("Configure led fire 2... ");
   pinMode(LED_FIRE2, OUTPUT);
@@ -326,7 +388,31 @@ void setup() {
   Serial.print("Turning led fire 2 off... ");
   analogWrite(LED_FIRE2, 0);
   Serial.println("DONE");
+#endif
 
+// -- FIRE 3 LED ------------------------------------------------------------------------------------------
+#ifdef ESP32
+  // With the lack of analogWrite() function for ESP32 use PWM with the ledc... functions on MH TH LIVE MiniKit ESP32
+  Serial.print("Configure PWM channel for led fire 3... ");
+  ledcSetup(pwmFire3Channel, pwmFreq, pwmResolution);
+  Serial.println("DONE");
+  
+  Serial.print("Attach led fire 3 to PWM channel for eyes... ");
+  ledcAttachPin(LED_FIRE3, pwmFire3Channel);
+  Serial.println("DONE");
+
+  Serial.print("Turning led fire 3 on... ");
+  ledcWrite(pwmFire3Channel, 255);
+  Serial.println("DONE");
+
+  delay(500);
+
+  Serial.print("Turning led fire 3 off... ");
+  ledcWrite(pwmFire3Channel, 0);
+  Serial.println("DONE");
+  
+#else
+  // For Wemos D1 mini we can use analogWrite()
   // Initialize fire 3, test it and turn it off
   Serial.print("Configure led fire 3... ");
   pinMode(LED_FIRE3, OUTPUT);
@@ -338,15 +424,18 @@ void setup() {
   Serial.print("Turning led fire 3 off... ");
   analogWrite(LED_FIRE3, 0);
   Serial.println("DONE");
+#endif
 
+// -- RANDOM CREATOR --------------------------------------------------------------------------------------
   // Feeding randomSeed with random analog noise of unconnected analog pin... 
   Serial.print("Feeding randomSeed with random analog noise of unconnected analog pin... ");
-  randomSeed(analogRead(A0));
+  randomSeed(analogRead(ANALOG_RANDOMSEED));
   Serial.println("DONE");
 
+// -- TURNING ONBOARD LED OFF -----------------------------------------------------------------------------
   // Turning onboard led off
   Serial.print("Turning onboard led off... ");
-  digitalWrite(LED_BUILTIN,HIGH);
+  digitalWrite(LED_BUILTIN,ONBOARD_OFF);
   Serial.println("DONE");
 
   Serial.println("- READY -");
@@ -431,9 +520,17 @@ void loop() {
   // Permamently lit fire
   if(stableLight == true)
   {
+#ifdef ESP32
+    // With the lack of analogWrite() function for ESP32 use PWM with the ledc... functions on MH TH LIVE MiniKit ESP32
+    ledcWrite(pwmFire1Channel, fireMaxIntensity);
+    ledcWrite(pwmFire2Channel, fireMaxIntensity);
+    ledcWrite(pwmFire3Channel, fireMaxIntensity);
+#else
+    // For Wemos D1 mini we can use analogWrite()
     analogWrite(LED_FIRE1, fireMaxIntensity);
     analogWrite(LED_FIRE2, fireMaxIntensity);
     analogWrite(LED_FIRE3, fireMaxIntensity);
+#endif
   }
   // Flickering fire
   else
@@ -443,9 +540,17 @@ void loop() {
       int randFire1 = random(fireMinIntensity,fireMaxIntensity);
       int randFire2 = random(fireMinIntensity,fireMaxIntensity);
       int randFire3 = random(fireMinIntensity,fireMaxIntensity);
+#ifdef ESP32
+      // With the lack of analogWrite() function for ESP32 use PWM with the ledc... functions on MH TH LIVE MiniKit ESP32
+      ledcWrite(pwmFire1Channel, randFire1);
+      ledcWrite(pwmFire2Channel, randFire2);
+      ledcWrite(pwmFire3Channel, randFire3);
+#else
+      // For Wemos D1 mini we can use analogWrite()
       analogWrite(LED_FIRE1, randFire1);
       analogWrite(LED_FIRE2, randFire2);
       analogWrite(LED_FIRE3, randFire3);
+#endif
       fireTimestamp = millis();
     }
   }
@@ -456,16 +561,22 @@ void loop() {
     // Within duration set in the settings
     if(millis() - eyesStartTimestamp < eyeActiveDuration)
     {
-        digitalWrite(LED_BUILTIN,LOW);
+        digitalWrite(LED_BUILTIN,ONBOARD_ON);
 
         // Permamently lit eyes
         if(stableLight==true)
         {
           Serial.println("Stable light is activated so not blinking. Just stable lit eyes.");
+#ifdef ESP32
+          // With the lack of analogWrite() function for ESP32 use PWM with the ledc... functions on MH TH LIVE MiniKit ESP32
+          ledcWrite(pwmEyesChannel, eyeActiveIntensity);
+#else
+          // For Wemos D1 mini we can use analogWrite()
           analogWrite(LED_EYE1,eyeActiveIntensity);
           analogWrite(LED_EYE2,eyeActiveIntensity);
+#endif
         }
-        // Blinkling eyes
+        // Blinking eyes
         else
         {       
             Serial.print("eyeBlinkCount: ");
@@ -492,8 +603,14 @@ void loop() {
                     if(millis() - blinkShortTimestamp <= eyeBlinkShortOn)
                     {
                         Serial.println("blinkShortTimestamp <= eyeBlinkShortOn");
+#ifdef ESP32
+                        // With the lack of analogWrite() function for ESP32 use PWM with the ledc... functions on MH TH LIVE MiniKit ESP32
+                        ledcWrite(pwmEyesChannel, eyeActiveIntensity);
+#else
+                        // For Wemos D1 mini we can use analogWrite()
                         analogWrite(LED_EYE1,eyeActiveIntensity);
                         analogWrite(LED_EYE2,eyeActiveIntensity);
+#endif
                     }
                     else{
                         Serial.println("blinkShortTimestamp > eyeBlinkShortOn >> Set eyeBlinkShortState to 0 and reset timestamp");
@@ -507,8 +624,14 @@ void loop() {
                     if(millis() - blinkShortTimestamp <= eyeBlinkShortOff)
                     {
                         Serial.println("blinkShortTimestamp <= eyeBlinkShortOff");
+#ifdef ESP32
+                        // With the lack of analogWrite() function for ESP32 use PWM with the ledc... functions on MH TH LIVE MiniKit ESP32
+                        ledcWrite(pwmEyesChannel, eyeIdleIntensity);
+#else
+                        // For Wemos D1 mini we can use analogWrite()
                         analogWrite(LED_EYE1,eyeIdleIntensity);
                         analogWrite(LED_EYE2,eyeIdleIntensity);
+#endif
                     }
                     else{
                         Serial.println("blinkShortTimestamp > eyeBlinkShortOff >> Set eyeBlinkShortState to 1, decrease eyeBlinkCount and reset timestamp");
@@ -522,8 +645,14 @@ void loop() {
             else
             {
                 Serial.println("Eyes continously on");
+#ifdef ESP32
+                // With the lack of analogWrite() function for ESP32 use PWM with the ledc... functions on MH TH LIVE MiniKit ESP32
+                ledcWrite(pwmEyesChannel, eyeActiveIntensity);
+#else
+                // For Wemos D1 mini we can use analogWrite()
                 analogWrite(LED_EYE1,eyeActiveIntensity);
                 analogWrite(LED_EYE2,eyeActiveIntensity);
+#endif
             }
         }      
     }
@@ -538,8 +667,14 @@ void loop() {
   // No dice detected. Keeping eyes dim.
   else
   {
-    digitalWrite(LED_BUILTIN,HIGH);
+    digitalWrite(LED_BUILTIN,ONBOARD_OFF);
+#ifdef ESP32
+    // With the lack of analogWrite() function for ESP32 use PWM with the ledc... functions on MH TH LIVE MiniKit ESP32
+    ledcWrite(pwmEyesChannel, eyeIdleIntensity);
+#else
+    // For Wemos D1 mini we can use analogWrite()
     analogWrite(LED_EYE1,eyeIdleIntensity);
     analogWrite(LED_EYE2,eyeIdleIntensity);
+#endif
   }
 }
