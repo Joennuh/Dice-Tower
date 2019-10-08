@@ -13,10 +13,10 @@ The following table is an overview of what kind of dices should be added and in 
 | Octahedron normal    | 8               | 1 - 8                   | Numbers 1 - 8        |
 | Mansions of madness  | 8               | 2x magnifying glass, 3x pentagram, 3x empty | Images corresponding to the values. |
 | Dodecahedron         | 12              | 1 - 12                  | Numbers 1 - 12       |
-| Icosahedron 1 - 10   | 20              | 2x 1- 10                | 2x numbers 1 - 10    |
+| Icosahedron 1 - 10   | 20              | 2x 1 - 10                | 2x numbers 1 - 10    |
 | Icosahedron 1 - 20   | 20              | 1 - 20                  | Numbers 1 - 20       |
 
-The list above is based on the list mentioned on this Wikipedia page: <https://en.wikipedia.org/wiki/Dice>
+The list above is based on my friend's Nico Jongsma wishes and the list mentioned on this Wikipedia page: <https://en.wikipedia.org/wiki/Dice>
 In my opinion the Tetrahedron and Pentagonal trapezohedron are not very common and thus I decided to not include these two types of dices.
 
 The end user should be able to choose the type of dice. This can not be mixed.
