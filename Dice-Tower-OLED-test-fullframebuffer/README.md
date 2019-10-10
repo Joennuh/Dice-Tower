@@ -5,7 +5,7 @@
 This directory is used to test an attached OLED to the MH-ET LIVE MiniKit ESP32.
 The idea is to use the screen to show messages like "Dice detected" and "Continous light mode on" but also to use it for throwing virtual dices.
 
-In this directory the sketch utilizes the page buffer option of the U8G2 library.
+In this directory the sketch utilizes the fullframe buffer option of the U8G2 library.
 
 ## Types of dices
 

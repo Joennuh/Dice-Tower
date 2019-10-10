@@ -200,7 +200,7 @@ bool idleActivated = false;
 #define offsetY 0
 #define U8_Width 128
 #define U8_Height 64
-U8G2_SSD1306_128X64_NONAME_2_SW_I2C u8g2(U8G2_R0, SCREEN_SCK, SCREEN_SDA);
+U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, SCREEN_SCK, SCREEN_SDA);
 #endif
 
 // == MENU (ONLY ON MH-ET LIVE MINIKIT ESP32) =============================================================
@@ -509,10 +509,9 @@ void setup() {
   Serial.println("DONE");
 
   Serial.print("Sending image to display... ");
-  u8g2.firstPage();
-  do {
-    u8g2.drawXBMP(0, 0, 128, 64, logoDiceTower);
-  } while ( u8g2.nextPage() );
+  u8g2.clearBuffer();
+  u8g2.drawXBMP(0, 0, 128, 64, logoDiceTower);
+  u8g2.sendBuffer();
   Serial.println("DONE");
   nav.idleTask=idle;//point a function to be used when menu is suspended
 #endif
@@ -743,32 +742,29 @@ void loop() {
   if (nav.changed(0)) {//only draw if menu changed for gfx device
     Serial.println("-- Loop: call to nav.changed(0)");
     //change checking leaves more time for other tasks
-    u8g2.firstPage();
-    do{
-      nav.doOutput();
-      u8g2.setContrast(screenContrast);
-    } while( u8g2.nextPage() );
+    u8g2.clearBuffer();
+    nav.doOutput();
+    u8g2.setContrast(screenContrast);
+    u8g2.sendBuffer();
   }
   else if (idleActivated == true){
     Serial.println("- idleActivated == true");
-    if(millis() - updateScreenTimestamp > 1000){
+    if(millis() - updateScreenTimestamp > 500){
       if(eyesOn == true)
       {
           Serial.println("- eyesOn == true");
-          u8g2.firstPage();
-          do{
-            u8g2.drawStr(0,64,"Dice detected!");
-            u8g2.drawRFrame(44,5,40,40,5);
-            u8g2.drawDisc(49,10,3,U8G2_DRAW_ALL); // x, y, radius, draw everyhing
-          } while( u8g2.nextPage() );
+          u8g2.clearBuffer();
+          u8g2.drawStr(0,64,"Dice detected!");
+          u8g2.drawRFrame(44,5,40,40,5);
+          u8g2.drawDisc(49,10,3,U8G2_DRAW_ALL); // x, y, radius, draw everyhing
+          u8g2.sendBuffer();
       }
       else
       {
           Serial.println("- eyesOn == false");
-          u8g2.firstPage();
-          do{
-            u8g2.drawStr(0,64,"Roll a dice");
-          } while( u8g2.nextPage() );
+          u8g2.clearBuffer();
+          u8g2.drawStr(0,64,"Roll a dice");
+          u8g2.sendBuffer();
       }
       updateScreenTimestamp = millis();
     }
