@@ -1,0 +1,59 @@
+Menu
+|-	Mode
+|	|- Dice detect
+|	|- Virtual dice
+|
+|-	Detect settings
+|	|-	Eyes
+|	|	|-	Intensity
+|	|	|	|- Idle
+|	|	|	|- Active
+|	|	|
+|	|	|- Dice detection
+|	|	 	|- Eyes actice (sec)
+|	|	 	|- Amount blinks
+|	|	 	|- Advanced
+|	|	 		|- Blink on ms
+|	|	 		|- Blink off ms
+|	|
+|	|-	Campfire
+|	|	|- Intensity
+|	|	|	|- Minimum
+|	|	|	|- Maximum
+|	|	|
+|	|	|- Advanced
+|	|		|- Flicker speed
+|	|
+|	|-	Configuration led
+|	|		|- Advanced
+|	|			|- Single click
+|	|			|	|- Light on ms
+|	|			|
+|	|			|- Long click
+|	|			|	|- Light on ms
+|	|			|
+|	|			|- Double click
+|	|				|- Light on ms
+|	|				|- Light off ms
+|	|-	Screen
+|		|- Contrast
+|
+|-	Virtual dice
+|	|-	Dice type
+|	|	|-	Cube
+|	|	|-	Octahedron
+|	|	|-	Mansions of madness
+|	|	|-	Dodecahedron
+|	|	|-	Icosahedron 1 - 10
+|	|	|-	Icosahedron 1 - 20
+|	| 
+|	|- Amount of dices
+|		|-	1
+|		|-	2
+|		|-	3
+|		|-	4
+|		|-	5
+|		|-	6
+|		|-	7
+|
+|- Show splash

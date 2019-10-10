@@ -9,7 +9,7 @@
 [![Gitter](https://badges.gitter.im/Dice-Tower/community.svg)](https://gitter.im/Dice-Tower/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 ## OLED test
-This "ESP32-OLED" branch is for testing an SSD1306 OLED attached to the MH-ET LIVE MiniKit ESP32 including bootlogo, menu and virtual rolling dices. For more information see the special directory for this test and its README.md: [Dice-Tower-OLED-test/](Dice-Tower-OLED-test/)
+This "ESP32-OLED" branch is for testing an SSD1306 OLED attached to the MH-ET LIVE MiniKit ESP32 including bootlogo, menu and virtual rolling dices. For more information see the special directory for this test and its README.md: [Dice-Tower-OLED-test-fullframebuffer/](Dice-Tower-OLED-test-fullframebuffer/)
 
 ## Work in progress
 This README.md needs to be enriched with photo's, images, etc. This is something I strive to add during the progress of the project.

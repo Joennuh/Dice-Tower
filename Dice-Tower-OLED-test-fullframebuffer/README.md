@@ -32,3 +32,11 @@ I want to place a maximum of 7 boxes on the screen and within these boxes do sho
 ## Menu
 
 The menu will be done with ArduinoMenu: <https://github.com/neu-rah/ArduinoMenu>
+
+The proposed menu structure can be found at [idea_for_menu.txt](idea_for_menu.txt).
+
+## Hardware
+
+I try to design the software and PCB in that way that both the MH-ET LIVE MiniKit ESP32 as the Wemos D1 mini can be connected. The Wemos D1 mini would have ofcourse less functionality (e.g. no screen and virtual dioce).
+
+For the display and menu-buttons I'm planning to design a seperate PCB that can be connected through a serial cable to the main PCB. That seperate PCB can hold the SSD1306 128 x 64 OLED and the 3 menu buttons. Since there is a conenctor left in the DB-9 serial cable this can be used for a status led or something.

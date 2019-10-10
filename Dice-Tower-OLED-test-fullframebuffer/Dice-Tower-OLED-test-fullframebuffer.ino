@@ -63,6 +63,8 @@
 #include <menuIO/serialIO.h>
 #include <menuIO/stringIn.h>
 
+#include <plugin/barField.h>
+
 // Images
 #include "images.h"
 #endif
@@ -145,7 +147,8 @@ const int configLedDoubleClickDurationOff = 200; // How long in milliseconds sho
 
 #ifdef ESP32
 // Only applicable to OLED screen on MH-ET LIVE MiniKit ESP32
-int screenContrast = 255; // OLED screen contrast 
+int screenContrast = 255; // OLED screen contrast
+unsigned long screenI2CBusSpeed = 0; // Adjust I2C bus speed. Set to 0 to use defaults. Described on https://github.com/olikraus/u8g2/wiki/u8g2reference#setbusclock
 #endif
 
 // == CONFIGURATION =======================================================================================
@@ -246,6 +249,31 @@ result action2(eventMask e) {
   return quit;
 }
 
+MENU(screenMenu,"Screen",doNothing,anyEvent,wrapStyle
+  ,BARFIELD(screenContrast,"Contrast","",5,255,10,1,doNothing,noEvent,wrapStyle)
+  ,EXIT("<Back")
+);
+
+MENU(settingsMenu,"Settings",doNothing,anyEvent,wrapStyle
+   //,FIELD(RGBledRed,"Red        : ","",0,255,10,5,doNothing,noEvent,wrapStyle)
+   //,BARFIELD(RGBledRed,LANG_RGB_RED,"",0,255,10,1,RGBPresetMenuReset,enterEvent,wrapStyle)//numeric field with a bar
+   //,FIELD(RGBledGreen,"Green      : ","",0,255,10,5,doNothing,noEvent,wrapStyle)
+  //,BARFIELD(RGBledGreen,LANG_RGB_GREEN,"",0,255,10,1,RGBPresetMenuReset,enterEvent,wrapStyle)//numeric field with a bar
+  //,FIELD(RGBledBlue,"Blue       : ","",0,255,10,5,doNothing,noEvent,wrapStyle)
+  //,BARFIELD(RGBledBlue,LANG_RGB_BLUE,"",0,255,10,1,RGBPresetMenuReset,enterEvent,wrapStyle)//numeric field with a bar
+  //,SUBMENU(RGBPresetMenu)
+  //,SUBMENU(WiFiSettingsMenu)
+  //,SUBMENU(WebserverSettingsMenu)
+  //,SUBMENU(PairdevicesSettingsMenu)
+  //,BARFIELD(TFTled,LANG_MENU_SETTINGS_DISPLAYBRIGHTNESS,"",0,255,10,1,doNothing,noEvent,wrapStyle)//numeric field with a bar
+  //,SUBMENU(TorchSettingsMenu)
+  ,OP("Eyes",doNothing,noEvent)
+  ,OP("Campfire",doNothing,noEvent)
+  ,OP("Configuration led",doNothing,noEvent)
+  ,SUBMENU(screenMenu)
+  ,EXIT("< Back")
+);
+
 int selTest=0;
 SELECT(selTest,selMenu,"Select",doNothing,noEvent,wrapStyle
   ,VALUE("Zero",0,doNothing,noEvent)
@@ -279,15 +307,10 @@ MENU(subMenu,"Sub-Menu",doNothing,anyEvent,wrapStyle
   ,EXIT("<Back")
 );
 
-MENU(screenMenu,"Screen",doNothing,anyEvent,wrapStyle
-  ,FIELD(screenContrast,"Contrast","",5,255,10,5,doNothing,noEvent,wrapStyle)
-  ,EXIT("<Back")
-);
-
 MENU(deviceMenu,"Device",doNothing,anyEvent,wrapStyle
   ,SUBMENU(screenMenu)
   ,EDIT("Name",deviceName,textMask,doNothing,noEvent,noStyle)
-  ,EXIT("<Back")
+  ,EXIT("< Back")
 );
 
 uint16_t hrs=0;
@@ -305,15 +328,17 @@ char* constMEM hexNr[] MEMMODE={"0","x",hexDigit,hexDigit};
 char buf1[]="0x11";
 
 MENU(mainMenu,"Main menu",doNothing,noEvent,wrapStyle
-  ,OP("Op1",action1,anyEvent)
-  ,OP("Op2",action2,enterEvent)
-  ,SUBMENU(menuTime)
-  ,SUBMENU(deviceMenu)
-  ,SUBMENU(subMenu)
-  ,SUBMENU(selMenu)
-  ,SUBMENU(chooseMenu)
-  ,OP("Alert test",doAlert,enterEvent)
-  ,EXIT("<Back")
+  //,OP("Op1",action1,anyEvent)
+  //,OP("Op2",action2,enterEvent)
+  //,SUBMENU(menuTime)
+  //,SUBMENU(deviceMenu)
+  //,SUBMENU(subMenu)
+  //,SUBMENU(selMenu)
+  //,SUBMENU(chooseMenu)
+  //,OP("Alert test",doAlert,enterEvent)
+  ,SUBMENU(settingsMenu)
+  ,OP("Show splash",doNothing,noEvent)
+  ,EXIT("< Exit")
 );
 
 MENU_OUTPUTS(out,MAX_DEPTH
@@ -503,6 +528,14 @@ void setup() {
 
 // -- SCREEN (ONLY ON MH-ET LIVE MINIKIT ESP32) ----------------------------------------------------------
 #ifdef ESP32
+  if(screenI2CBusSpeed > 0)
+  {
+    Serial.print("Configuring bus speed at ");
+    Serial.print(screenI2CBusSpeed);
+    Serial.print(" Hz...");
+    u8g2.setBusClock(screenI2CBusSpeed);
+    Serial.println("DONE");
+  }
   Serial.print("Setting up U8G2 display... ");
   u8g2.begin();
   u8g2.setFont(fontName);
@@ -514,6 +547,7 @@ void setup() {
   u8g2.sendBuffer();
   Serial.println("DONE");
   nav.idleTask=idle;//point a function to be used when menu is suspended
+  nav.idleOn(idle); // Directly enable idle screen with dice detector screen
 #endif
 
 // -- BUTTONS ---------------------------------------------------------------------------------------------
@@ -754,16 +788,18 @@ void loop() {
       {
           Serial.println("- eyesOn == true");
           u8g2.clearBuffer();
-          u8g2.drawStr(0,64,"Dice detected!");
-          u8g2.drawRFrame(44,5,40,40,5);
-          u8g2.drawDisc(49,10,3,U8G2_DRAW_ALL); // x, y, radius, draw everyhing
+//          u8g2.drawStr(0,64,"Dice detected!");
+//          u8g2.drawRFrame(44,5,40,40,5);
+//          u8g2.drawDisc(49,10,3,U8G2_DRAW_ALL); // x, y, radius, draw everyhing
+          u8g2.drawXBMP(0, 0, 128, 64, imgDiceDetected);
           u8g2.sendBuffer();
       }
       else
       {
           Serial.println("- eyesOn == false");
           u8g2.clearBuffer();
-          u8g2.drawStr(0,64,"Roll a dice");
+//          u8g2.drawStr(0,64,"Roll a dice");
+          u8g2.drawXBMP(0, 0, 128, 64, imgRollADice);
           u8g2.sendBuffer();
       }
       updateScreenTimestamp = millis();
