@@ -1,9 +1,9 @@
 Menu
-|-	Mode
+|-	Screen mode
 |	|- Dice detect
 |	|- Virtual dice
 |
-|-	Detect settings
+|-	Settings
 |	|-	Eyes
 |	|	|-	Intensity
 |	|	|	|- Idle

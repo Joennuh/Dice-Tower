@@ -113,13 +113,13 @@ const int pwmResolution = 8;
 #endif
 
 // EYE LEDS
-const int eyeIdleIntensity = 20; // Idle intensity for the eyes on a scale of 0 to 255
-const int eyeActiveIntensity = 255; // Active intensity for the eyes on a scale of 0 to 255
-const int eyeActiveDuration = 3000; // How long the eyes should stay active on a detected dice. In milliseconds.
+int eyeIdleIntensity = 20; // Idle intensity for the eyes on a scale of 0 to 255
+int eyeActiveIntensity = 255; // Active intensity for the eyes on a scale of 0 to 255
+int eyeActiveDuration = 3000; // How long the eyes should stay active on a detected dice. In milliseconds.
 
-const int eyeBlinkShortOn = 100; // Duration of the on state while blinking. In milliseconds.
-const int eyeBlinkShortOff = 100; // Duration of the off state while blinking. In milliseconds.
-const int eyeBlinkAmount = 3; // How much blinks of the eyes during the blink state on a detected dice.
+int eyeBlinkShortOn = 100; // Duration of the on state while blinking. In milliseconds.
+int eyeBlinkShortOff = 100; // Duration of the off state while blinking. In milliseconds.
+int eyeBlinkAmount = 3; // How much blinks of the eyes during the blink state on a detected dice.
 
 #ifdef ESP32
 // Define PWM channel for MH-ET LIVE MiniKit ESP32
@@ -127,9 +127,9 @@ const int pwmEyesChannel = 0;
 #endif
 
 // FIRE LEDS
-const int fireMinIntensity = 0; // Minimum intensity for campfire flickering on a scale of 0 - 255.
-const int fireMaxIntensity = 255; // Maximum intensity for campfire flickering on a scale of 0 - 255
-const unsigned long fireFlickeringSpeed = 75; // Interval in milliseconds before a new random intensity will be set for a campfire led.
+int fireMinIntensity = 0; // Minimum intensity for campfire flickering on a scale of 0 - 255.
+int fireMaxIntensity = 255; // Maximum intensity for campfire flickering on a scale of 0 - 255
+unsigned long fireFlickeringSpeed = 75; // Interval in milliseconds before a new random intensity will be set for a campfire led.
 
 
 #ifdef ESP32
@@ -140,15 +140,35 @@ const int pwmFire3Channel = 3;
 #endif
 
 // CONFIGURATION LED
-const int configLedSingleClickDurationOn = 200; // How long in milliseconds should the configuration led stay on after a single click on the configuration button.
-const int configLedLongClickDurationOn = 1000; // How long in milliseconds should the configuration led stay on after a long click on the configuration button.
-const int configLedDoubleClickDurationOn = 200; // How long in milliseconds should the configuration led stay on in the on state of blinking after a double click on the configuration button.
-const int configLedDoubleClickDurationOff = 200; // How long in milliseconds should the configuration led stay on in the on state of blinking after a double click on the configuration button.
+int configLedSingleClickDurationOn = 200; // How long in milliseconds should the configuration led stay on after a single click on the configuration button.
+int configLedLongClickDurationOn = 1000; // How long in milliseconds should the configuration led stay on after a long click on the configuration button.
+int configLedDoubleClickDurationOn = 200; // How long in milliseconds should the configuration led stay on in the on state of blinking after a double click on the configuration button.
+int configLedDoubleClickDurationOff = 200; // How long in milliseconds should the configuration led stay on in the on state of blinking after a double click on the configuration button.
 
+/********************************************************************************************************* 
+ *  THE FOLLOWING SETTINGS ARE ONLY APPLICABLE TO THE MH-ET LIVE MINIKIT ESP32!
+*********************************************************************************************************/
 #ifdef ESP32
-// Only applicable to OLED screen on MH-ET LIVE MiniKit ESP32
+//  SCREEN SETTINGS
 int screenContrast = 255; // OLED screen contrast
 unsigned long screenI2CBusSpeed = 0; // Adjust I2C bus speed. Set to 0 to use defaults. Described on https://github.com/olikraus/u8g2/wiki/u8g2reference#setbusclock
+int screenMode = 0; // 0 = Dice detection, 1 = Virtual dice
+
+// VIRTUAL DICE SETTINGS
+int selectedDiceType = 2;
+// 0 = Cube
+// 1 = Octahedron
+// 2 = Mansions of madness
+// 3 = Dodecahedron
+// 4 = Icosahedron 1 - 10
+// 5 = Icosahedron 1 - 20
+
+int selectedAmountOfDices = 4;
+// It is shifted with 1 downwards, so:
+// 0 = 1 dice (minimum)
+// 1 = 2 dices
+// (...)
+// 6 = 7 dices (maximum)
 #endif
 
 // == CONFIGURATION =======================================================================================
@@ -249,78 +269,125 @@ result action2(eventMask e) {
   return quit;
 }
 
+// -- Main menu - Screen mode --------------------------------------------------------------------
+CHOOSE(screenMode,screenModeMenu,"Mode: ",doNothing,noEvent,noStyle
+  ,VALUE("Dice detect",0,doNothing,noEvent)
+  ,VALUE("Virtual dice",1,doNothing,noEvent)
+);
+
+// -- Settings - screen --------------------------------------------------------------------------
 MENU(screenMenu,"Screen",doNothing,anyEvent,wrapStyle
   ,BARFIELD(screenContrast,"Contrast","",5,255,10,1,doNothing,noEvent,wrapStyle)
   ,EXIT("<Back")
 );
 
-MENU(settingsMenu,"Settings",doNothing,anyEvent,wrapStyle
-   //,FIELD(RGBledRed,"Red        : ","",0,255,10,5,doNothing,noEvent,wrapStyle)
-   //,BARFIELD(RGBledRed,LANG_RGB_RED,"",0,255,10,1,RGBPresetMenuReset,enterEvent,wrapStyle)//numeric field with a bar
-   //,FIELD(RGBledGreen,"Green      : ","",0,255,10,5,doNothing,noEvent,wrapStyle)
-  //,BARFIELD(RGBledGreen,LANG_RGB_GREEN,"",0,255,10,1,RGBPresetMenuReset,enterEvent,wrapStyle)//numeric field with a bar
-  //,FIELD(RGBledBlue,"Blue       : ","",0,255,10,5,doNothing,noEvent,wrapStyle)
-  //,BARFIELD(RGBledBlue,LANG_RGB_BLUE,"",0,255,10,1,RGBPresetMenuReset,enterEvent,wrapStyle)//numeric field with a bar
-  //,SUBMENU(RGBPresetMenu)
-  //,SUBMENU(WiFiSettingsMenu)
-  //,SUBMENU(WebserverSettingsMenu)
-  //,SUBMENU(PairdevicesSettingsMenu)
-  //,BARFIELD(TFTled,LANG_MENU_SETTINGS_DISPLAYBRIGHTNESS,"",0,255,10,1,doNothing,noEvent,wrapStyle)//numeric field with a bar
-  //,SUBMENU(TorchSettingsMenu)
-  ,OP("Eyes",doNothing,noEvent)
-  ,OP("Campfire",doNothing,noEvent)
-  ,OP("Configuration led",doNothing,noEvent)
-  ,SUBMENU(screenMenu)
-  ,EXIT("< Back")
-);
-
-int selTest=0;
-SELECT(selTest,selMenu,"Select",doNothing,noEvent,wrapStyle
-  ,VALUE("Zero",0,doNothing,noEvent)
-  ,VALUE("One",1,doNothing,noEvent)
-  ,VALUE("Two",2,doNothing,noEvent)
-);
-
-int chooseTest=-1;
-CHOOSE(chooseTest,chooseMenu,"Choose",doNothing,noEvent,wrapStyle
-  ,VALUE("First",1,doNothing,noEvent)
-  ,VALUE("Second",2,doNothing,noEvent)
-  ,VALUE("Third",3,doNothing,noEvent)
-  ,VALUE("Last",-1,doNothing,noEvent)
-);
-
-//customizing a prompt look!
-//by extending the prompt class
-class altPrompt:public prompt {
-public:
-  altPrompt(constMEM promptShadow& p):prompt(p) {}
-  Used printTo(navRoot &root,bool sel,menuOut& out, idx_t idx,idx_t len,idx_t) override {
-    return out.printRaw(F("special prompt!"),len);;
-  }
-};
-
-MENU(subMenu,"Sub-Menu",doNothing,anyEvent,wrapStyle
-  ,OP("Sub1",showEvent,enterEvent)
-  ,OP("Sub2",showEvent,enterEvent)
-  ,OP("Sub3",showEvent,enterEvent)
-  ,altOP(altPrompt,"",showEvent,enterEvent)
+// -- Settings - eyes ----------------------------------------------------------------------------
+MENU(eyesIntensityMenu,"Intensity",doNothing,anyEvent,wrapStyle
+  ,BARFIELD(eyeIdleIntensity,"Idle: ","",0,255,10,1,doNothing,noEvent,wrapStyle)
+  ,BARFIELD(eyeActiveIntensity,"Active:","",0,255,10,1,doNothing,noEvent,wrapStyle)
   ,EXIT("<Back")
 );
 
-MENU(deviceMenu,"Device",doNothing,anyEvent,wrapStyle
-  ,SUBMENU(screenMenu)
-  ,EDIT("Name",deviceName,textMask,doNothing,noEvent,noStyle)
-  ,EXIT("< Back")
+MENU(eyesDiceDetectionAdvancedMenu,"Advanced - blink",doNothing,anyEvent,wrapStyle
+  ,FIELD(eyeBlinkShortOn,"On: ","ms",0,1000,50,5,doNothing,noEvent,wrapStyle)
+  ,FIELD(eyeBlinkShortOff,"Off: ","ms",0,1000,50,5,doNothing,noEvent,wrapStyle)
+  ,EXIT("<Back")
 );
 
-uint16_t hrs=0;
-uint16_t mins=0;
+MENU(eyesDiceDetectionMenu,"Dice detection",doNothing,anyEvent,wrapStyle
+  ,FIELD(eyeActiveDuration,"Active: ","ms",0,10000,1000,100,doNothing,noEvent,wrapStyle)
+  ,FIELD(eyeBlinkAmount,"Blinks: ","",0,10,2,1,doNothing,noEvent,wrapStyle)
+  ,SUBMENU(eyesDiceDetectionAdvancedMenu)
+  ,EXIT("<Back")
+);
 
-//define a pad style menu (single line menu)
-//here with a set of fields to enter a date in YYYY/MM/DD format
-altMENU(menu,menuTime,"Time",doNothing,noEvent,noStyle,(systemStyles)(_asPad|Menu::_menuData|Menu::_canNav|_parentDraw)
-  ,FIELD(hrs,"",":",0,23,1,0,doNothing,noEvent,noStyle)
-  ,FIELD(mins,"","",0,59,10,1,doNothing,noEvent,wrapStyle)
+MENU(eyesMenu,"Eyes",doNothing,anyEvent,wrapStyle
+  ,SUBMENU(eyesIntensityMenu)
+  ,SUBMENU(eyesDiceDetectionMenu)
+  ,EXIT("<Back")
+);
+
+// -- Settings - Campfire ------------------------------------------------------------------------
+MENU(campfireIntensityMenu,"Intensity",doNothing,anyEvent,wrapStyle
+  ,BARFIELD(fireMinIntensity,"Min: ","",0,255,10,1,doNothing,noEvent,wrapStyle)
+  ,BARFIELD(fireMaxIntensity,"Max: ","",0,255,10,1,doNothing,noEvent,wrapStyle)
+  ,EXIT("<Back")
+);
+
+MENU(campfireAdvancedMenu,"Advanced",doNothing,anyEvent,wrapStyle
+  ,FIELD(fireFlickeringSpeed,"Speed: ","ms",0,1000,50,5,doNothing,noEvent,wrapStyle)
+  ,EXIT("<Back")
+);
+
+MENU(campfireMenu,"Campfire",doNothing,anyEvent,wrapStyle
+  ,SUBMENU(campfireIntensityMenu)
+  ,SUBMENU(campfireAdvancedMenu)
+  ,EXIT("<Back")
+);
+
+// -- Settings - Configuration led ---------------------------------------------------------------
+MENU(cfgAdvancedSingleClickMenu,"Single click",doNothing,anyEvent,wrapStyle
+  ,FIELD(configLedSingleClickDurationOn,"On: ","ms",0,1000,50,5,doNothing,noEvent,wrapStyle)
+  ,EXIT("<Back")
+);
+
+MENU(cfgAdvancedLongClickMenu,"Long click",doNothing,anyEvent,wrapStyle
+  ,FIELD(configLedLongClickDurationOn,"On: ","ms",0,3000,100,10,doNothing,noEvent,wrapStyle)
+  ,EXIT("<Back")
+);
+
+MENU(cfgAdvancedDoubleClickMenu,"Double click",doNothing,anyEvent,wrapStyle
+  ,FIELD(configLedDoubleClickDurationOn,"On: ","ms",0,1000,50,5,doNothing,noEvent,wrapStyle)
+  ,FIELD(configLedDoubleClickDurationOff,"Off: ","ms",0,1000,50,5,doNothing,noEvent,wrapStyle)
+  ,EXIT("<Back")
+);
+
+MENU(cfgLedAdvancedMenu,"Advanced",doNothing,anyEvent,wrapStyle
+  ,SUBMENU(cfgAdvancedSingleClickMenu)
+  ,SUBMENU(cfgAdvancedLongClickMenu)
+  ,SUBMENU(cfgAdvancedDoubleClickMenu)
+  ,EXIT("<Back")
+);
+
+MENU(cfgLedMenu,"Configuration led",doNothing,anyEvent,wrapStyle
+  ,SUBMENU(cfgLedAdvancedMenu)
+  ,EXIT("<Back")
+);
+
+// -- Virtual dice menu ---------------------------------------------------------------------------
+CHOOSE(selectedDiceType,virtualDiceTypeMenu,"Type: ",doNothing,noEvent,noStyle
+  ,VALUE("Cube",0,doNothing,noEvent)
+  ,VALUE("Octahedron",1,doNothing,noEvent)
+  ,VALUE("Mansions of madness",2,doNothing,noEvent)
+  ,VALUE("Dodecahedron",3,doNothing,noEvent)
+  ,VALUE("Icosahedron 1 - 10",4,doNothing,noEvent)
+  ,VALUE("Icosahedron 1 - 20",5,doNothing,noEvent)
+);
+
+CHOOSE(selectedAmountOfDices,virtualDiceAmountMenu,"Dices: ",doNothing,noEvent,noStyle
+  ,VALUE("1",0,doNothing,noEvent)
+  ,VALUE("2",1,doNothing,noEvent)
+  ,VALUE("3",2,doNothing,noEvent)
+  ,VALUE("4",3,doNothing,noEvent)
+  ,VALUE("5",4,doNothing,noEvent)
+  ,VALUE("6",5,doNothing,noEvent)
+  ,VALUE("7",6,doNothing,noEvent)
+);
+
+MENU(virtualDiceMenu,"Virtual dice",doNothing,anyEvent,wrapStyle
+  ,SUBMENU(virtualDiceTypeMenu)
+  ,FIELD(selectedAmountOfDices,"Dices: ","",0,7,2,1,doNothing,noEvent,wrapStyle)
+  ,EXIT("<Back")
+);
+
+// -- Settings menu -------------------------------------------------------------------------------
+MENU(settingsMenu,"Settings",doNothing,anyEvent,wrapStyle
+  ,SUBMENU(screenModeMenu)
+  ,SUBMENU(eyesMenu)
+  ,SUBMENU(campfireMenu)
+  ,SUBMENU(cfgLedMenu)
+  ,SUBMENU(screenMenu)
+  ,EXIT("< Back")
 );
 
 char* constMEM hexDigit MEMMODE="0123456789ABCDEF";
@@ -328,15 +395,8 @@ char* constMEM hexNr[] MEMMODE={"0","x",hexDigit,hexDigit};
 char buf1[]="0x11";
 
 MENU(mainMenu,"Main menu",doNothing,noEvent,wrapStyle
-  //,OP("Op1",action1,anyEvent)
-  //,OP("Op2",action2,enterEvent)
-  //,SUBMENU(menuTime)
-  //,SUBMENU(deviceMenu)
-  //,SUBMENU(subMenu)
-  //,SUBMENU(selMenu)
-  //,SUBMENU(chooseMenu)
-  //,OP("Alert test",doAlert,enterEvent)
   ,SUBMENU(settingsMenu)
+  ,SUBMENU(virtualDiceMenu)
   ,OP("Show splash",doNothing,noEvent)
   ,EXIT("< Exit")
 );
