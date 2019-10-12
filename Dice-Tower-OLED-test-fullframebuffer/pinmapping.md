@@ -16,7 +16,7 @@
 | DWN_BTN   | -       | IO34          |
 | SCK       | -       | IO27          |
 | SDA       | -       | IO25          |
-| RNDMSD    | A0      | IO36          |
+| RNDMSD    | A0      | IO36 (SVP)    |
 
 ## Remarks
 
