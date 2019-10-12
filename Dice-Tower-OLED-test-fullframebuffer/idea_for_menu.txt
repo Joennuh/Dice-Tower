@@ -35,6 +35,28 @@ Menu
 |	|			|- Double click
 |	|				|- Light on ms
 |	|				|- Light off ms
+|	|
+|	|-	Display ind. led
+|	|		|- Mode
+|	|		|	|- Re to btn press
+|	|		|	|- Continous on
+|	|		|	|- Continous off
+|	|		|
+|	|		|- Intensity
+|	|		|	|- Idle
+|	|		|	|- Active
+|	|		|
+|	|		|- Advanced
+|	|			|- Single click
+|	|			|	|- Light off ms
+|	|			|
+|	|			|- Long click
+|	|			|	|- Light off ms
+|	|			|
+|	|			|- Double click
+|	|				|- Light off ms
+|	|				|- Light on ms
+|	|
 |	|-	Screen
 |		|- Contrast
 |

@@ -85,6 +85,7 @@
 #define ANALOG_RANDOMSEED 36 // Leave this pin unconnected, the noise of this pin is used for the random creator
 
 // Additional configuration for MH-ET LIVE MiniKit ESP32
+#define LED_DISPLAY_INDICATOR 14 // 32
 #define SCREEN_SCK 27
 #define SCREEN_SDA 25
 #define BTN_UP 35 // With external pull-up since GPIO 34 - 39 don't have internal pull-up. See https://desire.giesecke.tk/index.php/2018/07/06/reserved-gpios/
@@ -143,7 +144,7 @@ const int pwmFire3Channel = 3;
 int configLedSingleClickDurationOn = 200; // How long in milliseconds should the configuration led stay on after a single click on the configuration button.
 int configLedLongClickDurationOn = 1000; // How long in milliseconds should the configuration led stay on after a long click on the configuration button.
 int configLedDoubleClickDurationOn = 200; // How long in milliseconds should the configuration led stay on in the on state of blinking after a double click on the configuration button.
-int configLedDoubleClickDurationOff = 200; // How long in milliseconds should the configuration led stay on in the on state of blinking after a double click on the configuration button.
+int configLedDoubleClickDurationOff = 200; // How long in milliseconds should the configuration led stay off in the on state of blinking after a double click on the configuration button.
 
 /********************************************************************************************************* 
  *  THE FOLLOWING SETTINGS ARE ONLY APPLICABLE TO THE MH-ET LIVE MINIKIT ESP32!
@@ -153,6 +154,16 @@ int configLedDoubleClickDurationOff = 200; // How long in milliseconds should th
 int screenContrast = 255; // OLED screen contrast
 unsigned long screenI2CBusSpeed = 0; // Adjust I2C bus speed. Set to 0 to use defaults. Described on https://github.com/olikraus/u8g2/wiki/u8g2reference#setbusclock
 int screenMode = 0; // 0 = Dice detection, 1 = Virtual dice
+
+// DISPLAY INDICATOR LED
+int diLedMode = 0; // 0 = Reply to button presses, 1 = continous on, 2 = off
+int diLedIdleIntensity = 255; // Idle intensity of display indicator led
+int diLedActiveIntensity = 10; // Active intensity of display indicator led
+int diLedSingleClickDurationOff = 300; // How long in milliseconds should the display indicator led stay off after a single click on one of the buttons on the display module.
+int diLedLongClickDurationOff = 1000; // How long in milliseconds should the display indicator led stay off after a long click on one of the buttons on the display module.
+int diLedDoubleClickDurationOff = 200; // How long in milliseconds should the display indicator led stay off in the on state of blinking after a double click on one of the buttons on the display module.
+int diLedDoubleClickDurationOn = 200; // How long in milliseconds should the display indicator led stay on in the on state of blinking after a double click on one of the buttons on the display module.
+const int pwmDilChannel = 15;
 
 // VIRTUAL DICE SETTINGS
 int selectedDiceType = 2;
@@ -201,6 +212,12 @@ int configLedType = 0; // The sequence how the configuration led should turn on.
 unsigned long configLedTimestamp = millis(); // Record default timestamp for the configuration led logic.
 int configLedDoubleClickstate = 0; // Set the initial state for the blinking configuration led logic. In this case the blink starts with the off (0) state.
 int configLedDoubleClickCount = 2; // Set the counter (which got decreased) for the amount of blinks for the configuration led after a double click.
+
+bool diLedOff = false; // Trigger for within the loop to turn the display indicator led off.
+int diLedType = 0; // The sequence how the display indicator led should turn off. 0 = none, 1 = single click, 2 = long click, 3 = double click
+unsigned long diLedTimestamp = millis(); // Record default timestamp for thedisplay indicator led logic.
+int diLedDoubleClickstate = 0; // Set the initial state for the blinking display indicator led logic. In this case the blink starts with the on (0) state.
+int diLedDoubleClickCount = 2; // Set the counter (which got decreased) for the amount of blinks for the display indicator led after a double click.
 
 // Set active states for LED_BUILTIN. On ESP8266 the led is active on LOW, but on ESP32 it is active on HIGH.
 #ifdef ESP32
@@ -278,80 +295,123 @@ CHOOSE(screenMode,screenModeMenu,"Mode: ",doNothing,noEvent,noStyle
 // -- Settings - screen --------------------------------------------------------------------------
 MENU(screenMenu,"Screen",doNothing,anyEvent,wrapStyle
   ,BARFIELD(screenContrast,"Contrast","",5,255,10,1,doNothing,noEvent,wrapStyle)
-  ,EXIT("<Back")
+  ,EXIT("< Back")
 );
 
 // -- Settings - eyes ----------------------------------------------------------------------------
 MENU(eyesIntensityMenu,"Intensity",doNothing,anyEvent,wrapStyle
   ,BARFIELD(eyeIdleIntensity,"Idle: ","",0,255,10,1,doNothing,noEvent,wrapStyle)
-  ,BARFIELD(eyeActiveIntensity,"Active:","",0,255,10,1,doNothing,noEvent,wrapStyle)
-  ,EXIT("<Back")
+  ,BARFIELD(eyeActiveIntensity,"Active: ","",0,255,10,1,doNothing,noEvent,wrapStyle)
+  ,EXIT("< Back")
 );
 
 MENU(eyesDiceDetectionAdvancedMenu,"Advanced - blink",doNothing,anyEvent,wrapStyle
   ,FIELD(eyeBlinkShortOn,"On: ","ms",0,1000,50,5,doNothing,noEvent,wrapStyle)
   ,FIELD(eyeBlinkShortOff,"Off: ","ms",0,1000,50,5,doNothing,noEvent,wrapStyle)
-  ,EXIT("<Back")
+  ,EXIT("< Back")
 );
 
 MENU(eyesDiceDetectionMenu,"Dice detection",doNothing,anyEvent,wrapStyle
   ,FIELD(eyeActiveDuration,"Active: ","ms",0,10000,1000,100,doNothing,noEvent,wrapStyle)
   ,FIELD(eyeBlinkAmount,"Blinks: ","",0,10,2,1,doNothing,noEvent,wrapStyle)
   ,SUBMENU(eyesDiceDetectionAdvancedMenu)
-  ,EXIT("<Back")
+  ,EXIT("< Back")
 );
 
 MENU(eyesMenu,"Eyes",doNothing,anyEvent,wrapStyle
   ,SUBMENU(eyesIntensityMenu)
   ,SUBMENU(eyesDiceDetectionMenu)
-  ,EXIT("<Back")
+  ,EXIT("< Back")
 );
 
 // -- Settings - Campfire ------------------------------------------------------------------------
 MENU(campfireIntensityMenu,"Intensity",doNothing,anyEvent,wrapStyle
   ,BARFIELD(fireMinIntensity,"Min: ","",0,255,10,1,doNothing,noEvent,wrapStyle)
   ,BARFIELD(fireMaxIntensity,"Max: ","",0,255,10,1,doNothing,noEvent,wrapStyle)
-  ,EXIT("<Back")
+  ,EXIT("< Back")
 );
 
 MENU(campfireAdvancedMenu,"Advanced",doNothing,anyEvent,wrapStyle
   ,FIELD(fireFlickeringSpeed,"Speed: ","ms",0,1000,50,5,doNothing,noEvent,wrapStyle)
-  ,EXIT("<Back")
+  ,EXIT("< Back")
 );
 
 MENU(campfireMenu,"Campfire",doNothing,anyEvent,wrapStyle
   ,SUBMENU(campfireIntensityMenu)
   ,SUBMENU(campfireAdvancedMenu)
-  ,EXIT("<Back")
+  ,EXIT("< Back")
 );
 
 // -- Settings - Configuration led ---------------------------------------------------------------
 MENU(cfgAdvancedSingleClickMenu,"Single click",doNothing,anyEvent,wrapStyle
   ,FIELD(configLedSingleClickDurationOn,"On: ","ms",0,1000,50,5,doNothing,noEvent,wrapStyle)
-  ,EXIT("<Back")
+  ,EXIT("< Back")
 );
 
 MENU(cfgAdvancedLongClickMenu,"Long click",doNothing,anyEvent,wrapStyle
   ,FIELD(configLedLongClickDurationOn,"On: ","ms",0,3000,100,10,doNothing,noEvent,wrapStyle)
-  ,EXIT("<Back")
+  ,EXIT("< Back")
 );
 
 MENU(cfgAdvancedDoubleClickMenu,"Double click",doNothing,anyEvent,wrapStyle
   ,FIELD(configLedDoubleClickDurationOn,"On: ","ms",0,1000,50,5,doNothing,noEvent,wrapStyle)
   ,FIELD(configLedDoubleClickDurationOff,"Off: ","ms",0,1000,50,5,doNothing,noEvent,wrapStyle)
-  ,EXIT("<Back")
+  ,EXIT("< Back")
 );
 
 MENU(cfgLedAdvancedMenu,"Advanced",doNothing,anyEvent,wrapStyle
   ,SUBMENU(cfgAdvancedSingleClickMenu)
   ,SUBMENU(cfgAdvancedLongClickMenu)
   ,SUBMENU(cfgAdvancedDoubleClickMenu)
-  ,EXIT("<Back")
+  ,EXIT("< Back")
 );
 
 MENU(cfgLedMenu,"Configuration led",doNothing,anyEvent,wrapStyle
   ,SUBMENU(cfgLedAdvancedMenu)
-  ,EXIT("<Back")
+  ,EXIT("< Back")
+);
+
+// -- Settings - Display indicator led -----------------------------------------------------------
+MENU(dilAdvancedSingleClickMenu,"Single click",doNothing,anyEvent,wrapStyle
+  ,FIELD(diLedSingleClickDurationOff,"Off: ","ms",0,1000,50,5,doNothing,noEvent,wrapStyle)
+  ,EXIT("< Back")
+);
+
+MENU(dilAdvancedLongClickMenu,"Long click",doNothing,anyEvent,wrapStyle
+  ,FIELD(diLedLongClickDurationOff,"Off: ","ms",0,3000,100,10,doNothing,noEvent,wrapStyle)
+  ,EXIT("< Back")
+);
+
+MENU(dilAdvancedDoubleClickMenu,"Double click",doNothing,anyEvent,wrapStyle
+  ,FIELD(diLedDoubleClickDurationOff,"Off: ","ms",0,1000,50,5,doNothing,noEvent,wrapStyle)
+  ,FIELD(diLedDoubleClickDurationOn,"On: ","ms",0,1000,50,5,doNothing,noEvent,wrapStyle)
+  ,EXIT("< Back")
+);
+
+MENU(diLedAdvancedMenu,"Advanced",doNothing,anyEvent,wrapStyle
+  ,SUBMENU(dilAdvancedSingleClickMenu)
+  ,SUBMENU(dilAdvancedLongClickMenu)
+  ,SUBMENU(dilAdvancedDoubleClickMenu)
+  ,EXIT("< Back")
+);
+
+MENU(diLedIntensityMenu,"Intensity",doNothing,anyEvent,wrapStyle
+  ,BARFIELD(diLedIdleIntensity,"Idle: ","",0,255,10,1,doNothing,noEvent,wrapStyle)
+  ,BARFIELD(diLedActiveIntensity,"Active: ","",0,255,10,1,doNothing,noEvent,wrapStyle)
+  ,EXIT("< Back")
+);
+
+CHOOSE(diLedMode,diLedModeMenu,"Mode: ",doNothing,noEvent,noStyle
+  ,VALUE("Re to btn press",0,doNothing,noEvent)
+  ,VALUE("Continous on",1,doNothing,noEvent)
+  ,VALUE("Continous off",2,doNothing,noEvent)
+);
+
+MENU(diLedMenu,"Display ind. led",doNothing,anyEvent,wrapStyle
+  ,SUBMENU(diLedModeMenu)
+  ,SUBMENU(diLedIntensityMenu)
+  ,SUBMENU(diLedAdvancedMenu)
+  ,EXIT("< Back")
 );
 
 // -- Virtual dice menu ---------------------------------------------------------------------------
@@ -377,7 +437,7 @@ CHOOSE(selectedAmountOfDices,virtualDiceAmountMenu,"Dices: ",doNothing,noEvent,n
 MENU(virtualDiceMenu,"Virtual dice",doNothing,anyEvent,wrapStyle
   ,SUBMENU(virtualDiceTypeMenu)
   ,FIELD(selectedAmountOfDices,"Dices: ","",0,7,2,1,doNothing,noEvent,wrapStyle)
-  ,EXIT("<Back")
+  ,EXIT("< Back")
 );
 
 // -- Settings menu -------------------------------------------------------------------------------
@@ -386,6 +446,7 @@ MENU(settingsMenu,"Settings",doNothing,anyEvent,wrapStyle
   ,SUBMENU(eyesMenu)
   ,SUBMENU(campfireMenu)
   ,SUBMENU(cfgLedMenu)
+  ,SUBMENU(diLedMenu)
   ,SUBMENU(screenMenu)
   ,EXIT("< Back")
 );
@@ -541,22 +602,52 @@ void button_init()
         unsigned int time = b.wasPressedFor();
         if (time >= 1000) {
            Serial.println("Button: escape");
+           diLedTimestamp = millis();
+           diLedOff = true;
+           diLedType = 2;
+           diLedDoubleClickstate = 1;
+           diLedDoubleClickCount = 2;
            nav.doNav(escCmd);
         }
+    });
+
+    btnSelect.setDoubleClickHandler([](Button2 & b) {
+       diLedTimestamp = millis();
+       diLedOff = true;
+       diLedType = 3;
+       diLedDoubleClickstate = 1;
+       diLedDoubleClickCount = 2;
+       Serial.print("Select double click activated! Timestamp: ");
+       Serial.println(diLedTimestamp);
     });
     
     btnSelect.setClickHandler([](Button2 & b) {
        Serial.println("Button: enter");
+       diLedTimestamp = millis();
+       diLedOff = true;
+       diLedType = 1;
+       diLedDoubleClickstate = 0;
+       diLedDoubleClickCount = 2;
        nav.doNav(enterCmd);
     });
 
     btnUp.setClickHandler([](Button2 & b) {
        Serial.println("Button: up (downCmd)");
+       diLedTimestamp = millis();
+       diLedOff = true;
+       diLedType = 1;
+       diLedDoubleClickstate = 0;
+       diLedDoubleClickCount = 2;
        nav.doNav(downCmd);
     });
 
     btnDown.setClickHandler([](Button2 & b) {
-      Serial.println("Button: down (upCmd)");
+       Serial.println("Button: down (upCmd)");
+       diLedTimestamp = millis();
+       diLedOff = true;
+       diLedType = 1;
+       diLedDoubleClickstate = 0;
+       diLedDoubleClickCount = 2;
        nav.doNav(upCmd);
     });
 #endif
@@ -697,7 +788,7 @@ void setup() {
   ledcSetup(pwmFire1Channel, pwmFreq, pwmResolution);
   Serial.println("DONE");
   
-  Serial.print("Attach led fire 1 to PWM channel for eyes... ");
+  Serial.print("Attach led fire 1 to PWM channel for it... ");
   ledcAttachPin(LED_FIRE1, pwmFire1Channel);
   Serial.println("DONE");
 
@@ -733,7 +824,7 @@ void setup() {
   ledcSetup(pwmFire2Channel, pwmFreq, pwmResolution);
   Serial.println("DONE");
   
-  Serial.print("Attach led fire 2 to PWM channel for eyes... ");
+  Serial.print("Attach led fire 2 to PWM channel for it... ");
   ledcAttachPin(LED_FIRE2, pwmFire2Channel);
   Serial.println("DONE");
 
@@ -769,7 +860,7 @@ void setup() {
   ledcSetup(pwmFire3Channel, pwmFreq, pwmResolution);
   Serial.println("DONE");
   
-  Serial.print("Attach led fire 3 to PWM channel for eyes... ");
+  Serial.print("Attach led fire 3 to PWM channel for it... ");
   ledcAttachPin(LED_FIRE3, pwmFire3Channel);
   Serial.println("DONE");
 
@@ -798,6 +889,36 @@ void setup() {
   Serial.println("DONE");
 #endif
 
+// -- DISPLAY INDICATOR LED ------------------------------------------------------------------------------
+#ifdef ESP32
+  // With the lack of analogWrite() function for ESP32 use PWM with the ledc... functions on MH TH LIVE MiniKit ESP32
+  Serial.print("Configure PWM channel for display indiciator led... ");
+  ledcSetup(pwmDilChannel, pwmFreq, pwmResolution);
+  Serial.println("DONE");
+  
+  Serial.print("Attach display indiciator led to PWM channel for it... ");
+  ledcAttachPin(LED_DISPLAY_INDICATOR, pwmDilChannel);
+  Serial.println("DONE");
+
+  Serial.print("Turning display indicator led on... ");
+  ledcWrite(pwmDilChannel, 255);
+  Serial.println("DONE");
+
+  delay(500);
+
+  Serial.print("Turning display indicator led off... ");
+  ledcWrite(pwmDilChannel, diLedIdleIntensity);
+  Serial.println("DONE");
+  
+//  Serial.print("Configure display indicator led... ");
+//  pinMode(LED_DISPLAY_INDICATOR,OUTPUT);
+//  Serial.println("DONE");
+//  Serial.print("Turning display indicator led on...");
+//  digitalWrite(LED_DISPLAY_INDICATOR,HIGH);
+//  Serial.println("DONE");
+//  delay(500);
+#endif
+
 // -- RANDOM CREATOR --------------------------------------------------------------------------------------
   // Feeding randomSeed with random analog noise of unconnected analog pin... 
   Serial.print("Feeding randomSeed with random analog noise of unconnected analog pin... ");
@@ -816,8 +937,8 @@ void setup() {
 unsigned long updateScreenTimestamp = millis();
 
 void loop() {
-  Serial.print("Loop - millis(): ");
-  Serial.println(millis());
+  //Serial.print("Loop - millis(): ");
+  //Serial.println(millis());
   button_loop(); // Poll button states
 
   // -- ARDUINOMENU (ONLY ON MH-ET LIVE MINIKIT ESP32) ----------------------------------------------------
@@ -842,7 +963,7 @@ void loop() {
     u8g2.sendBuffer();
   }
   else if (idleActivated == true){
-    Serial.println("- idleActivated == true");
+    //Serial.println("- idleActivated == true");
     if(millis() - updateScreenTimestamp > 500){
       if(eyesOn == true)
       {
@@ -939,6 +1060,116 @@ void loop() {
         }
     }
   }
+
+#ifdef ESP32
+// Display indicator led
+
+  if(diLedMode == 1) // 1 = continous on
+  {
+    ledcWrite(pwmDilChannel, diLedIdleIntensity);
+  }
+  else if(diLedMode == 2) // 2 = continous off
+  {
+    ledcWrite(pwmDilChannel, 0);
+  }
+  else // 0 or other values = reply to button presses
+  {
+    if(diLedOff == true)
+    {
+        Serial.println("loop -> diLedOff == true");
+        Serial.print("diLedType: ");
+        Serial.println(diLedType);
+        // Single click
+        if(diLedType == 1){
+            Serial.println("diLedType == 1");
+            if(millis()- diLedTimestamp <= diLedSingleClickDurationOff)
+            {
+                Serial.println("millis()- diLedTimestamp <= diLedSingleClickDurationOff");
+                ledcWrite(pwmDilChannel, diLedActiveIntensity);
+                //digitalWrite(LED_DISPLAY_INDICATOR,LOW);
+            }
+            else
+            {
+                Serial.println("millis()- diLedTimestamp > diLedSingleClickDurationOff");
+                ledcWrite(pwmDilChannel, diLedIdleIntensity);
+                //digitalWrite(LED_DISPLAY_INDICATOR,HIGH);
+                diLedTimestamp = millis();
+                diLedOff = false;
+                diLedType = 0;
+            }
+        }
+        // Long click
+        else if(diLedType == 2){
+            Serial.println("diLedType == 2");
+            if(millis()- diLedTimestamp <= diLedLongClickDurationOff)
+            {
+                Serial.println("millis()- diLedTimestamp <= diLedLongClickDurationOff");
+                ledcWrite(pwmDilChannel, diLedActiveIntensity);
+                //digitalWrite(LED_DISPLAY_INDICATOR,LOW);
+            }
+            else
+            {
+                Serial.println("millis()- diLedTimestamp > diLedLongClickDurationOff");
+                ledcWrite(pwmDilChannel, diLedIdleIntensity);
+                //digitalWrite(LED_DISPLAY_INDICATOR,HIGH);
+                diLedTimestamp = millis();
+                diLedOff = false;
+                diLedType = 0;
+            }
+        }
+        // Double click
+        else if(diLedType == 3)
+        {
+            Serial.println("diLedType == 3");
+            if(diLedDoubleClickCount > 0)
+            {
+                Serial.print("millis(): ");
+                Serial.print(millis());
+                Serial.print(", diLedTimestamp: ");
+                Serial.println(diLedTimestamp);
+                
+                // Led off
+                if(diLedDoubleClickstate == 1){
+                    Serial.println("diLedDoubleClickstate == 1");
+                    if(millis() - diLedTimestamp <= diLedDoubleClickDurationOff)
+                    {
+                        Serial.println("diLedTimestamp <= diLedDoubleClickDurationOff");
+                        ledcWrite(pwmDilChannel, diLedActiveIntensity);
+                    }
+                    else{
+                        Serial.println("diLedTimestamp > diLedDoubleClickDurationOn >> Set diLedDoubleClickstate to 0 and reset timestamp");
+                        diLedTimestamp = millis();
+                        diLedDoubleClickstate = 0; // Set blink state to off
+                    }
+                }
+                // Led on
+                else if(diLedDoubleClickstate == 0){
+                    Serial.println("diLedDoubleClickstate == 0");
+                    if(millis() - diLedTimestamp <= diLedDoubleClickDurationOn)
+                    {
+                        Serial.println("diLedTimestamp <= diLedDoubleClickDurationOn");
+                        ledcWrite(pwmDilChannel, diLedIdleIntensity);
+                    }
+                    else{
+                        Serial.println("diLedTimestamp > diLedDoubleClickDurationOn >> Set diLedDoubleClickstate to 1, decrease diLedDoubleClickCount and reset timestamp");
+                        diLedTimestamp = millis();
+                        diLedDoubleClickstate = 1; // Set blink state to on
+                        diLedDoubleClickCount--;
+                    }
+                }
+            }
+        }
+        else
+        {
+          ledcWrite(pwmDilChannel, diLedIdleIntensity);
+        }
+    }
+    else
+    {
+      ledcWrite(pwmDilChannel, diLedIdleIntensity);
+    }
+  }
+#endif
 
   // Permamently lit fire
   if(stableLight == true)
