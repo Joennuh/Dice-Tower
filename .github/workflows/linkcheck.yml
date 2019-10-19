@@ -1,0 +1,12 @@
+on:
+  push:
+    paths:
+    - '**.md'
+name: Markdown files linkcheck
+jobs:
+  markdown-link-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: md-linkcheck
+      uses: ./
