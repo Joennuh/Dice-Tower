@@ -126,7 +126,7 @@ In the permanently lid program the yellow leds will stop flickering and are perm
 On the idle screen (dice detection or virtual dice) you can long press the select button to enter the menu.
 
 After that:
-* **Select - short press:** select / enter
+* **Select - short press:** select / enter / edit
 * **Select - long press:** back / exit
 * **Up - short press:** up in menu / decrease value
 * **Down - short press:** down in menu / increase value

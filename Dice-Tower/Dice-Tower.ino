@@ -40,10 +40,10 @@
  * 
  * On the MH-ET LIVE MiniKit ESP32 there is extra hardware to be added:
  * - SSD1306 I2C 128x64 monochrome OLED display (SCK to GPIO 27, SDA to GPIO 25, software driven)
- * - 3 additional tactile pushbuttons with 3 4.7K external pull-up resistor
- *    - Up-button on GPIO 32
- *    - Select / enter / back /edit button on GPIO 12
- *    - Down-button on GPIO 4
+ * - 3 additional tactile pushbuttons:
+ *    - Up-button on GPIO 35 (with 4.7K external pull-up resistor)
+ *    - Select / enter / back / edit button on GPIO 33
+ *    - Down-button on GPIO 34 (with 4.7K external pull-up resistor)
 ************************************************************************************************************/
 // Sketch metadata. Please do not change the following lines unless you plan to release an fork. In that case please add some information about you to these lines.
 #define PROG_NAME "Dice Tower"
