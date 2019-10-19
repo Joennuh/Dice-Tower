@@ -26,6 +26,8 @@ The things I added to the ideas of my colleague:
 - A power-light to see whether the project gets powered correctly.
 - A nice PCB design to flatten the space needed to drive all the leds. The original idea consisted of a main board with all connections to the leds soldered on it, then put a "interactive module" on top of that and at last a Wemos D1 mini or MH-ET LIVE MiniKit ESP32 on top of that. With a nice own designed PCB we got 1 layer less.
 
+More information about the functionality on the MH-ET LIVE ESP32 MiniKit can be found here: [Dice-Tower/README_ESP32.md](Dice-Tower/README_ESP32.md)
+
 ## Materials
 ### PCB
 Ofcourse you can build the project on a prototype board but if you want a nice looking PCB you can let a PCB manafacturer create it. I have designed a PCB at [EasyEDA](https://www.easyeda.com). You can find it here: <https://easyeda.com/Joennuh/Dice-Tower> Currently you need revision 005. Wemos D1 mini's as well MH-ET LIVE ESP32 MIniKit's are supported. The Wemos D1 mini has fewer pins and thus it does support less functionality.
