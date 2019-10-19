@@ -86,11 +86,14 @@
 
 // Additional configuration for MH-ET LIVE MiniKit ESP32
 #define LED_DISPLAY_INDICATOR 14 // 32
+#define LED_SMD1 4 // SL1 on PCB
+#define LED_SMD2 0 // SL2 on PCB
 #define SCREEN_SCK 27
 #define SCREEN_SDA 25
 #define BTN_UP 35 // With external pull-up since GPIO 34 - 39 don't have internal pull-up. See https://desire.giesecke.tk/index.php/2018/07/06/reserved-gpios/
 #define BTN_SELECT 33 // Has internal pull-up
 #define BTN_DOWN 34 // With external pull-up since GPIO 34 - 39 don't have internal pull-up. See https://desire.giesecke.tk/index.php/2018/07/06/reserved-gpios/
+
 #else
 // Define pin assignment for Wemos D1 mini
 #define LED_CONFIG D0
@@ -138,6 +141,8 @@ unsigned long fireFlickeringSpeed = 75; // Interval in milliseconds before a new
 const int pwmFire1Channel = 1;
 const int pwmFire2Channel = 2;
 const int pwmFire3Channel = 3;
+const int pwmSL1Channel = 4;
+const int pwmSL2Channel = 5;
 #endif
 
 // CONFIGURATION LED
@@ -889,6 +894,50 @@ void setup() {
   Serial.println("DONE");
 #endif
 
+// -- SMD LED 1 -------------------------------------------------------------------------------------------
+#ifdef ESP32
+  // With the lack of analogWrite() function for ESP32 use PWM with the ledc... functions on MH TH LIVE MiniKit ESP32
+  Serial.print("Configure PWM channel for SMD led 1... ");
+  ledcSetup(pwmSL1Channel, pwmFreq, pwmResolution);
+  Serial.println("DONE");
+  
+  Serial.print("Attach SMD led 1 to PWM channel for it... ");
+  ledcAttachPin(LED_SMD1, pwmSL1Channel);
+  Serial.println("DONE");
+
+  Serial.print("Turning SMD led 1 on... ");
+  ledcWrite(pwmSL1Channel, 255);
+  Serial.println("DONE");
+
+  delay(500);
+
+  Serial.print("Turning SMD led 2 off... ");
+  ledcWrite(pwmSL1Channel, 0);
+  Serial.println("DONE");
+#endif
+
+// -- SMD LED 2 -------------------------------------------------------------------------------------------
+#ifdef ESP32
+  // With the lack of analogWrite() function for ESP32 use PWM with the ledc... functions on MH TH LIVE MiniKit ESP32
+  Serial.print("Configure PWM channel for SMD led 2... ");
+  ledcSetup(pwmSL2Channel, pwmFreq, pwmResolution);
+  Serial.println("DONE");
+  
+  Serial.print("Attach SMD led 2 to PWM channel for it... ");
+  ledcAttachPin(LED_SMD2, pwmSL2Channel);
+  Serial.println("DONE");
+
+  Serial.print("Turning SMD led 2 on... ");
+  ledcWrite(pwmSL2Channel, 255);
+  Serial.println("DONE");
+
+  delay(500);
+
+  Serial.print("Turning SMD led 2 off... ");
+  ledcWrite(pwmSL2Channel, 0);
+  Serial.println("DONE");
+#endif
+
 // -- DISPLAY INDICATOR LED ------------------------------------------------------------------------------
 #ifdef ESP32
   // With the lack of analogWrite() function for ESP32 use PWM with the ledc... functions on MH TH LIVE MiniKit ESP32
@@ -1179,6 +1228,10 @@ void loop() {
     ledcWrite(pwmFire1Channel, fireMaxIntensity);
     ledcWrite(pwmFire2Channel, fireMaxIntensity);
     ledcWrite(pwmFire3Channel, fireMaxIntensity);
+
+    // Drive the 2 SMD-leds attached to the MH-ET LIVE MiniKit ESP32
+    ledcWrite(pwmSL1Channel, fireMaxIntensity);
+    ledcWrite(pwmSL2Channel, fireMaxIntensity);
 #else
     // For Wemos D1 mini we can use analogWrite()
     analogWrite(LED_FIRE1, fireMaxIntensity);
@@ -1199,6 +1252,12 @@ void loop() {
       ledcWrite(pwmFire1Channel, randFire1);
       ledcWrite(pwmFire2Channel, randFire2);
       ledcWrite(pwmFire3Channel, randFire3);
+
+      // Drive the 2 SMD-leds attached to the MH-ET LIVE MiniKit ESP32
+      int randSL1 = random(fireMinIntensity,fireMaxIntensity);
+      int randSL2 = random(fireMinIntensity,fireMaxIntensity);
+      ledcWrite(pwmSL1Channel, randSL1);
+      ledcWrite(pwmSL2Channel, randSL2);
 #else
       // For Wemos D1 mini we can use analogWrite()
       analogWrite(LED_FIRE1, randFire1);
