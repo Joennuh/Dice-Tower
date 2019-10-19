@@ -2,10 +2,10 @@
 
 ## Introduction
 
-This directory is used to test an attached OLED to the MH-ET LIVE MiniKit ESP32.
-The idea is to use the screen to show messages like "Dice detected" and "Continous light mode on" but also to use it for throwing virtual dices.
+The ESP32 compiled version of Dice Tower supports the MH-ET LIVE ESP32 MiniKit, a connected SSD1306, an display indicator light (reacts to button presses on a display module) and 2 SMD leds of which their function has not yet been defined.
 
-In this directory the sketch utilizes the fullframe buffer option of the U8G2 library.
+The ESP32 version supports (a) virtual dice(s) on the screen.
+
 
 ## Types of dices
 
@@ -34,9 +34,3 @@ I want to place a maximum of 7 boxes on the screen and within these boxes do sho
 The menu will be done with ArduinoMenu: <https://github.com/neu-rah/ArduinoMenu>
 
 The proposed menu structure can be found at [idea_for_menu.txt](idea_for_menu.txt).
-
-## Hardware
-
-I try to design the software and PCB in that way that both the MH-ET LIVE MiniKit ESP32 as the Wemos D1 mini can be connected. The Wemos D1 mini would have ofcourse less functionality (e.g. no screen and virtual dioce).
-
-For the display and menu-buttons I'm planning to design a seperate PCB that can be connected through a serial cable to the main PCB. That seperate PCB can hold the SSD1306 128 x 64 OLED and the 3 menu buttons. Since there is a conenctor left in the DB-9 serial cable this can be used for a status led or something.
