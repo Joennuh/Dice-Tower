@@ -28,6 +28,8 @@ The things I added to the ideas of my colleague:
 
 More information about the functionality on the MH-ET LIVE ESP32 MiniKit can be found here: [Dice-Tower/README_ESP32.md](Dice-Tower/README_ESP32.md)
 
+More information about which pin is used for which functionality you can have a look at the [Pinmapping scheme](Dice-Tower/pinmapping.md)
+
 ## Materials
 ### PCB
 Ofcourse you can build the project on a prototype board but if you want a nice looking PCB you can let a PCB manafacturer create it. I have designed a PCB at [EasyEDA](https://www.easyeda.com). You can find it here: <https://easyeda.com/Joennuh/Dice-Tower> Currently you need revision 005. Wemos D1 mini's as well MH-ET LIVE ESP32 MIniKit's are supported. The Wemos D1 mini has fewer pins and thus it does support less functionality.
