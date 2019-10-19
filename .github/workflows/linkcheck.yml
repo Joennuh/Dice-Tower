@@ -7,6 +7,6 @@ jobs:
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: ocular-d/md-linkcheck-action@1.0.1
+    - uses: actions/checkout@master
     - name: md-linkcheck
-      uses: ./
+      uses: ocular-d/md-linkcheck-action@1.0.1
