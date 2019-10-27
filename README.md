@@ -1,3 +1,5 @@
+![Dice Tower logo](img/Dice_Tower_logo_highres_v001.png)
+
 # Dice-Tower
 **Create some interaction effects for your homemade Dice Tower.**
 
