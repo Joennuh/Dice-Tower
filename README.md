@@ -62,17 +62,17 @@ Other development boards might be compatible with the Dice Tower. The best devel
 
 Another option is to design your own PCB or prototype board.
 
-Our [Pinmapping scheme](/Joennuh/Dice-Tower/blob/master/Dice-Tower/pinmapping.md) might be handy in these situations.
+Our [Pinmapping scheme](https://github.com/Joennuh/Dice-Tower/blob/master/Dice-Tower/pinmapping.md) might be handy in these situations.
 
 ## Documentation
-While some documentation is present in the [sketch files](/Joennuh/Dice-Tower/tree/master/Dice-Tower) most of the documentation can be found at [the WIki](/Joennuh/Dice-Tower/wiki).
+While some documentation is present in the [sketch files](https://github.com/Joennuh/Dice-Tower/tree/master/Dice-Tower) most of the documentation can be found at [the WIki](https://github.com/Joennuh/Dice-Tower/wiki).
 
 Feel free to contact me in one of these ways:
 - [Gitter (prefered)](https://gitter.im/Dice-Tower/community)
-- [Repository issue](/Joennuh/Dice-Tower/issues)
+- [Repository issue](https://github.com/Joennuh/Dice-Tower/issues)
 - github ((at)) thebigsite ((dot)) nl
 	- *Replace the ((...)) with their respective characters.*
 
 ## Making changes to the software
 
-Feel free to modify the software as long as you respect the [GPL 3.0 license](/Joennuh/Dice-Tower/blob/master/LICENSE) and the instructions in the [sketch file](/Joennuh/Dice-Tower/blob/master/Dice-Tower/Dice-Tower.ino) it self. It would be great if you notify me about your changes / version. I'm curious to see what other people make of my work.
+Feel free to modify the software as long as you respect the [GPL 3.0 license](/Joennuh/Dice-Tower/blob/master/LICENSE) and the instructions in the [sketch file](https://github.com/Joennuh/Dice-Tower/blob/master/Dice-Tower/Dice-Tower.ino) it self. It would be great if you notify me about your changes / version. I'm curious to see what other people make of my work.
