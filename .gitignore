@@ -4,6 +4,7 @@
 # Excluded directories #
 ########################
 Source_files/
+releases/
 
 # Compiled source #
 ###################
