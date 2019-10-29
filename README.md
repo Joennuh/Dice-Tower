@@ -58,7 +58,11 @@ On the left you see the Wemos D1 mini and on the right the MH-ET LIVE MiniKit ES
 
 ### Other development boards
 
-Other development boards might be compatible with the Dice Tower. The best development boards would be the ones which has exactly the same form factor and pin layouts as the development boards mentioned above. Especially if you plan to use our designed PCB. Otherwise you might create an adapter plate to be able to connect the pins of your development board to the correct pins of our PCB. Otherwise you can design your own PCB or prototype board.
+Other development boards might be compatible with the Dice Tower. The best development boards would be the ones which has exactly the same form factor and pin layouts as the development boards mentioned above. Especially if you plan to use our designed PCB. Otherwise you might create an adapter plate to be able to connect the pins of your development board to the correct pins of our PCB.
+
+Another option is to design your own PCB or prototype board.
+
+Our [Pinmapping scheme](/Joennuh/Dice-Tower/blob/master/Dice-Tower/pinmapping.md) might be handy in these situations.
 
 ## Documentation
 While some documentation is present in the [sketch files](/Joennuh/Dice-Tower/tree/master/Dice-Tower) most of the documentation can be found at [the WIki](/Joennuh/Dice-Tower/wiki).
@@ -66,7 +70,8 @@ While some documentation is present in the [sketch files](/Joennuh/Dice-Tower/tr
 Feel free to contact me in one of these ways:
 - [Gitter (prefered)](https://gitter.im/Dice-Tower/community)
 - [Repository issue](/Joennuh/Dice-Tower/issues)
-- github ((at)) thebigsite ((dot)) nl *Replace the ((...)) with their respective characters.*
+- github ((at)) thebigsite ((dot)) nl
+	- *Replace the ((...)) with their respective characters.*
 
 ## Making changes to the software
 
