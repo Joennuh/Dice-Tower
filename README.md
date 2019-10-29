@@ -75,4 +75,4 @@ Feel free to contact me in one of these ways:
 
 ## Making changes to the software
 
-Feel free to modify the software as long as you respect the [GPL 3.0 license](/Joennuh/Dice-Tower/blob/master/LICENSE) and the instructions in the [sketch file](https://github.com/Joennuh/Dice-Tower/blob/master/Dice-Tower/Dice-Tower.ino) it self. It would be great if you notify me about your changes / version. I'm curious to see what other people make of my work.
+Feel free to modify the software as long as you respect the [GPL 3.0 license](https://github.com/Joennuh/Dice-Tower/blob/master/LICENSE) and the instructions in the [sketch file](https://github.com/Joennuh/Dice-Tower/blob/master/Dice-Tower/Dice-Tower.ino) it self. It would be great if you notify me about your changes / version. I'm curious to see what other people make of my work.
