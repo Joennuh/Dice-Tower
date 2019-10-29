@@ -17,6 +17,8 @@
 | SCK       | -       | IO27          |
 | SDA       | -       | IO25          |
 | RNDMSD    | A0      | IO36 (SVP)    |
+| SMD_LED1  | -       | IO4           |
+| SMD_LED2  | -       | IO0 (zero)    |
 
 ## Remarks
 
@@ -24,3 +26,4 @@
 * **UP_BTN, SEL_BTN, DWN_BTN:** Navigational buttons for display module.
 * **SCK, SDA:** Software I2C for SSD1306 display on display module.
 * **RNDMSD:** Random seed. Analog pin. Should not be connected to anything. Noise of it is used to drive the random generator.
+* **SMD_LED1, SMD_LED2**: 2 optional SMD leds on top of the main PCB. Currently acts as additional campfire leds.
