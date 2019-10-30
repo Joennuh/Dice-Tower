@@ -47,7 +47,7 @@
 ************************************************************************************************************/
 // Sketch metadata. Please do not change the following lines unless you plan to release an fork. In that case please add some information about you to these lines.
 #define PROG_NAME "Dice Tower"
-#define PROG_VERSION "0.1.0000"
+#define PROG_VERSION "0.2.0000"
 #define PROG_MANUFACTURER "The Big Site"
 
 // == INCLUDES ============================================================================================
@@ -158,7 +158,7 @@ int configLedDoubleClickDurationOff = 200; // How long in milliseconds should th
 //  SCREEN SETTINGS
 int screenContrast = 255; // OLED screen contrast
 unsigned long screenI2CBusSpeed = 0; // Adjust I2C bus speed. Set to 0 to use defaults. Described on https://github.com/olikraus/u8g2/wiki/u8g2reference#setbusclock
-int screenMode = 0; // 0 = Dice detection, 1 = Virtual dice
+int screenMode = 1; // 0 = Dice detection, 1 = Virtual dice
 
 // DISPLAY INDICATOR LED
 int diLedMode = 0; // 0 = Reply to button presses, 1 = continous on, 2 = off
@@ -171,7 +171,7 @@ int diLedDoubleClickDurationOn = 200; // How long in milliseconds should the dis
 const int pwmDilChannel = 15;
 
 // VIRTUAL DICE SETTINGS
-int selectedDiceType = 2;
+int selectedDiceType = 0;
 // 0 = Cube
 // 1 = Octahedron
 // 2 = Mansions of madness
@@ -224,6 +224,14 @@ unsigned long diLedTimestamp = millis(); // Record default timestamp for thedisp
 int diLedDoubleClickstate = 0; // Set the initial state for the blinking display indicator led logic. In this case the blink starts with the on (0) state.
 int diLedDoubleClickCount = 2; // Set the counter (which got decreased) for the amount of blinks for the display indicator led after a double click.
 
+// Default min and max values for virtual dices
+int vdValMin = 1;
+int vdValMax = 6;
+
+// Default boolean values for updating screen on virtual dice trigger
+bool vdRollTrigger = false;
+bool vdRollPrint = true;
+
 // Set active states for LED_BUILTIN. On ESP8266 the led is active on LOW, but on ESP32 it is active on HIGH.
 #ifdef ESP32
 #define ONBOARD_ON HIGH
@@ -235,6 +243,7 @@ int diLedDoubleClickCount = 2; // Set the counter (which got decreased) for the 
 
 // -- SCREEN ---------------------------------------------------------------------------------------------
 bool idleActivated = false;
+unsigned long updateScreenTimestamp = millis();
 
 #ifdef ESP32
 #define MAX_DEPTH 5
@@ -437,11 +446,13 @@ CHOOSE(selectedAmountOfDices,virtualDiceAmountMenu,"Dices: ",doNothing,noEvent,n
   ,VALUE("5",4,doNothing,noEvent)
   ,VALUE("6",5,doNothing,noEvent)
   ,VALUE("7",6,doNothing,noEvent)
+  ,VALUE("8",7,doNothing,noEvent)
 );
 
 MENU(virtualDiceMenu,"Virtual dice",doNothing,anyEvent,wrapStyle
   ,SUBMENU(virtualDiceTypeMenu)
-  ,FIELD(selectedAmountOfDices,"Dices: ","",0,7,2,1,doNothing,noEvent,wrapStyle)
+  //,FIELD(selectedAmountOfDices,"Dices: ","",0,7,2,1,doNothing,noEvent,wrapStyle)
+  ,SUBMENU(virtualDiceAmountMenu)
   ,EXIT("< Back")
 );
 
@@ -633,7 +644,30 @@ void button_init()
        diLedType = 1;
        diLedDoubleClickstate = 0;
        diLedDoubleClickCount = 2;
-       nav.doNav(enterCmd);
+       if(idleActivated == true) // Menu is not active
+       {
+        if(screenMode == 1){ // Screen mode is "virtual dice"
+          // Trigger virtual dice update
+          vdRollTrigger = true;
+          vdRollPrint = false;
+          updateScreenTimestamp = millis();
+          
+          // Trigger skull eyes
+          eyesStartTimestamp = millis();
+          blinkShortTimestamp = millis();
+          
+          eyesOn = true;
+          eyeBlinkCount = eyeBlinkAmount; // Reset blink counter
+          eyeBlinkShortState = 1; // Reset blink state
+          
+          Serial.print("New virtual dice roll detected. Timestamp: ");
+          Serial.println(eyesStartTimestamp);
+        }
+       }
+       else // Menu is active
+       {
+        nav.doNav(enterCmd); // Trigger enter / select command
+       }
     });
 
     btnUp.setClickHandler([](Button2 & b) {
@@ -983,8 +1017,6 @@ void setup() {
   Serial.println("- READY -");
 }
 
-unsigned long updateScreenTimestamp = millis();
-
 void loop() {
   //Serial.print("Loop - millis(): ");
   //Serial.println(millis());
@@ -1013,26 +1045,14 @@ void loop() {
   }
   else if (idleActivated == true){
     //Serial.println("- idleActivated == true");
-    if(millis() - updateScreenTimestamp > 500){
-      if(eyesOn == true)
-      {
-          Serial.println("- eyesOn == true");
-          u8g2.clearBuffer();
-//          u8g2.drawStr(0,64,"Dice detected!");
-//          u8g2.drawRFrame(44,5,40,40,5);
-//          u8g2.drawDisc(49,10,3,U8G2_DRAW_ALL); // x, y, radius, draw everyhing
-          u8g2.drawXBMP(0, 0, 128, 64, imgDiceDetected);
-          u8g2.sendBuffer();
-      }
-      else
-      {
-          Serial.println("- eyesOn == false");
-          u8g2.clearBuffer();
-//          u8g2.drawStr(0,64,"Roll a dice");
-          u8g2.drawXBMP(0, 0, 128, 64, imgRollADice);
-          u8g2.sendBuffer();
-      }
-      updateScreenTimestamp = millis();
+    
+    if(screenMode == 0)
+    {
+      ScreenDiceDetection();
+    }
+    else if(screenMode == 1)
+    {
+      ScreenVirtualDice();
     }
   }
 #endif
@@ -1391,3 +1411,137 @@ void loop() {
 #endif
   }
 }
+
+#ifdef ESP32
+void ScreenDiceDetection(){
+  if(millis() - updateScreenTimestamp > 500){
+    if(eyesOn == true)
+    {
+        Serial.println("- eyesOn == true");
+        u8g2.clearBuffer();
+//          u8g2.drawStr(0,64,"Dice detected!");
+//          u8g2.drawRFrame(44,5,40,40,5);
+//          u8g2.drawDisc(49,10,3,U8G2_DRAW_ALL); // x, y, radius, draw everyhing
+        u8g2.drawXBMP(0, 0, 128, 64, imgDiceDetected);
+        u8g2.sendBuffer();
+    }
+    else
+    {
+        Serial.println("- eyesOn == false");
+        u8g2.clearBuffer();
+//          u8g2.drawStr(0,64,"Roll a dice");
+        u8g2.drawXBMP(0, 0, 128, 64, imgRollADice);
+        u8g2.sendBuffer();
+    }
+    updateScreenTimestamp = millis();
+  }
+}
+
+void ScreenVirtualDice(){
+    if(vdRollTrigger == true) // Virtual dice triggered, show splash
+    {
+      u8g2.clearBuffer();
+      u8g2.drawStr(55,30,"ROLL!");
+      u8g2.sendBuffer();
+      vdRollTrigger=false;
+    }
+    else
+    {
+      if(vdRollPrint == false){ // Virtual dices not yet printed to screen
+         if(millis() - updateScreenTimestamp > eyeActiveDuration){ // Check whether it is time to print the virtual dices to the screen
+            // Time to print the virtual dices to the screen
+            u8g2.clearBuffer();
+            //u8g2.drawStr(0,30,"VIRTUAL DICES HERE");
+            ScreenVirtualDiceDrawFrames();
+            ScreenVirtualDiceDrawValue();
+            u8g2.sendBuffer();
+            vdRollPrint = true; // Virtual dices printed to the screen, so prevent that they got printed again
+            vdRollTrigger = false; // Reset trigger variable
+         }
+      }
+    }
+}
+
+void ScreenVirtualDiceDrawFrames(){    
+  //u8g2.drawStr(0,64,"Virtual dice");
+
+  // First row of dices
+  int diceLeftPos = 0;
+  int diceTopPos = 0;
+  for(int i = 0; i <= selectedAmountOfDices; i++)
+  {
+    u8g2.drawRFrame(diceLeftPos,diceTopPos,30,30,5);
+    if(diceLeftPos >= 96)
+    {
+      // 4th dice in a row reached, drawing next one on second row
+      diceTopPos = diceTopPos+31;
+      diceLeftPos = 0;
+    }
+    else
+    {
+      diceLeftPos = diceLeftPos + 32;
+    }
+  }
+}
+
+void ScreenVirtualDiceDrawValue(){
+  switch(selectedDiceType){
+    case 0: // Cube
+      vdValMin = 1;
+      vdValMax = 6;
+      ScreenVirtualDiceDrawValueNumber();
+      break;
+    case 1: // Octahedron
+      vdValMin = 1;
+      vdValMax = 8;
+      ScreenVirtualDiceDrawValueNumber();
+      break;
+    case 2: // Mansions of madness
+      vdValMin = 1;
+      vdValMax = 8;
+      //ScreenVirtualDiceDrawValueMom(); // Not implemented yet
+      break;
+    case 3: // Dodecahedron
+      vdValMin = 1;
+      vdValMax = 12;
+      ScreenVirtualDiceDrawValueNumber();
+      break;
+    case 4: // Icosahedron 1 - 10
+      vdValMin = 1;
+      vdValMax = 10;
+      ScreenVirtualDiceDrawValueNumber();
+      break;
+    case 5: // Icosahedron 1 - 20
+      vdValMin = 1;
+      vdValMax = 20;
+      ScreenVirtualDiceDrawValueNumber();
+      break;
+    default:
+      //ScreenVirtualDiceDrawValueDash(); // Not implemented yet
+      break;
+  }
+}
+
+void ScreenVirtualDiceDrawValueNumber(){
+  // First row of dices
+  int diceLeftPos = 7;
+  int diceTopPos = 20;
+  for(int i = 0; i <= selectedAmountOfDices; i++)
+  {
+    int vdRandomNumber = random(vdValMin, vdValMax);
+    char vdRandomNumberChar[8];
+    itoa(vdRandomNumber,vdRandomNumberChar,10); // Solution to convert int to char found on https://arduino.stackexchange.com/a/42987
+    u8g2.drawStr(diceLeftPos,diceTopPos,vdRandomNumberChar);
+    if(diceLeftPos >= 96)
+    {
+      // 4th dice in a row reached, drawing next one on second row
+      diceTopPos = diceTopPos+31;
+      diceLeftPos = 7;
+    }
+    else
+    {
+      diceLeftPos = diceLeftPos + 32;
+    }
+  }
+}
+#endif
