@@ -1450,7 +1450,8 @@ void ScreenVirtualDice(){
     if(vdRollTrigger == true) // Virtual dice triggered, show splash
     {
       u8g2.clearBuffer();
-      u8g2.drawStr(35,30,"ROLLING!");
+      //u8g2.drawStr(35,30,"ROLLING!");
+      u8g2.drawXBMP(0, 0, 128, 64, imgVirtualDiceRolling);
       u8g2.sendBuffer();
       vdRollTrigger=false;
     }
