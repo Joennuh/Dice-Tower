@@ -243,6 +243,7 @@ bool vdRollPrint = true;
 
 // -- SCREEN ---------------------------------------------------------------------------------------------
 bool idleActivated = false;
+bool virtualDiceStartScreen = true;
 unsigned long updateScreenTimestamp = millis();
 
 #ifdef ESP32
@@ -446,7 +447,7 @@ CHOOSE(selectedAmountOfDices,virtualDiceAmountMenu,"Dices: ",doNothing,noEvent,n
   ,VALUE("5",4,doNothing,noEvent)
   ,VALUE("6",5,doNothing,noEvent)
   ,VALUE("7",6,doNothing,noEvent)
-  ,VALUE("8",7,doNothing,noEvent)
+  //,VALUE("8",7,doNothing,noEvent)
 );
 
 MENU(virtualDiceMenu,"Virtual dice",doNothing,anyEvent,wrapStyle
@@ -514,6 +515,7 @@ result idle(menuOut& o,idleEvent e) {
     //o.clear();
     Serial.println("--> idleStart");
     idleActivated=true;
+    virtualDiceStartScreen=true;
   }
   if(e == idling)
   {
@@ -1052,7 +1054,14 @@ void loop() {
     }
     else if(screenMode == 1)
     {
-      ScreenVirtualDice();
+      if(virtualDiceStartScreen == true){
+        ScreenVirtualDiceStartScreen();
+        virtualDiceStartScreen=false;
+      }
+      else
+      {
+        ScreenVirtualDice();
+      }
     }
   }
 #endif
@@ -1441,7 +1450,7 @@ void ScreenVirtualDice(){
     if(vdRollTrigger == true) // Virtual dice triggered, show splash
     {
       u8g2.clearBuffer();
-      u8g2.drawStr(55,30,"ROLL!");
+      u8g2.drawStr(35,30,"ROLLING!");
       u8g2.sendBuffer();
       vdRollTrigger=false;
     }
@@ -1482,6 +1491,7 @@ void ScreenVirtualDiceDrawFrames(){
       diceLeftPos = diceLeftPos + 32;
     }
   }
+  u8g2.drawBox(96,31,30,30);
 }
 
 void ScreenVirtualDiceDrawValue(){
@@ -1489,7 +1499,7 @@ void ScreenVirtualDiceDrawValue(){
     case 0: // Cube
       vdValMin = 1;
       vdValMax = 6;
-      ScreenVirtualDiceDrawValueNumber();
+      ScreenVirtualDiceDrawValueCube();
       break;
     case 1: // Octahedron
       vdValMin = 1;
@@ -1499,7 +1509,7 @@ void ScreenVirtualDiceDrawValue(){
     case 2: // Mansions of madness
       vdValMin = 1;
       vdValMax = 8;
-      //ScreenVirtualDiceDrawValueMom(); // Not implemented yet
+      ScreenVirtualDiceDrawValueMom();
       break;
     case 3: // Dodecahedron
       vdValMin = 1;
@@ -1524,11 +1534,13 @@ void ScreenVirtualDiceDrawValue(){
 
 void ScreenVirtualDiceDrawValueNumber(){
   // First row of dices
+  int diceTotal = 0;
   int diceLeftPos = 7;
   int diceTopPos = 20;
   for(int i = 0; i <= selectedAmountOfDices; i++)
   {
-    int vdRandomNumber = random(vdValMin, vdValMax);
+    int vdRandomNumber = random(vdValMin, vdValMax+1);
+    diceTotal = diceTotal + vdRandomNumber;
     char vdRandomNumberChar[8];
     itoa(vdRandomNumber,vdRandomNumberChar,10); // Solution to convert int to char found on https://arduino.stackexchange.com/a/42987
     u8g2.drawStr(diceLeftPos,diceTopPos,vdRandomNumberChar);
@@ -1543,5 +1555,168 @@ void ScreenVirtualDiceDrawValueNumber(){
       diceLeftPos = diceLeftPos + 32;
     }
   }
+  u8g2.setDrawColor(0);
+  u8g2.drawStr(98,46,"SUM:");
+  char diceTotalChar[16];
+  itoa(diceTotal,diceTotalChar,10); // Solution to convert int to char found on https://arduino.stackexchange.com/a/42987
+  u8g2.drawStr(98,61,diceTotalChar);
+  u8g2.setDrawColor(1);
+}
+
+void ScreenVirtualDiceDrawValueCube(){
+  // First row of dices
+  int diceTotal = 0;
+  int diceLeftPos = 0;
+  int diceTopPos = 0;
+  for(int i = 0; i <= selectedAmountOfDices; i++)
+  {
+    int vdRandomNumber = random(1, 7);
+    diceTotal = diceTotal + vdRandomNumber;
+    ScreenVirtualDiceDrawValueCubeDots(vdRandomNumber, diceLeftPos, diceTopPos);
+    if(diceLeftPos >= 96)
+    {
+      // 4th dice in a row reached, drawing next one on second row
+      diceTopPos = diceTopPos+31;
+      diceLeftPos = 0;
+    }
+    else
+    {
+      diceLeftPos = diceLeftPos + 32;
+    }
+  }
+  u8g2.setDrawColor(0);
+  u8g2.drawStr(98,46,"SUM:");
+  char diceTotalChar[16];
+  itoa(diceTotal,diceTotalChar,10); // Solution to convert int to char found on https://arduino.stackexchange.com/a/42987
+  u8g2.drawStr(98,61,diceTotalChar);
+  u8g2.setDrawColor(1);
+}
+
+void ScreenVirtualDiceDrawValueCubeDots(int diceValue, int diceDotsLeftPos, int diceDotsTopPos)
+{
+  Serial.print("Drawing a ");
+  Serial.print(diceValue);
+  Serial.print(" for dice on left pos ");
+  Serial.print(diceDotsLeftPos);
+  Serial.print(" and top pos ");
+  Serial.print(diceDotsTopPos);
+  Serial.println(".");
+  if(diceValue == 1 || diceValue == 3 || diceValue == 5){
+    Serial.println("1, 3 or 5");
+    Serial.println("Drawing middle dot");
+    u8g2.drawDisc(diceDotsLeftPos+15,diceDotsTopPos+15,3); // Middle
+  }
+  if(diceValue == 2 || diceValue == 3 || diceValue == 4 || diceValue == 5 || diceValue == 6){
+    Serial.println("2, 3, 4, 5 or 6");
+    Serial.println("Drawing dot top left");
+    u8g2.drawDisc(diceDotsLeftPos+7,diceDotsTopPos+7,3); // Top left
+    Serial.println("Drawing dot bottom right");
+    u8g2.drawDisc(diceDotsLeftPos+23,diceDotsTopPos+23,3); // Bottom right
+  }
+  if(diceValue == 4 || diceValue == 5 || diceValue == 6){
+    Serial.println("4, 6 or 6");
+    Serial.println("Drawing dot top right");
+    u8g2.drawDisc(diceDotsLeftPos+23,diceDotsTopPos+7,3); // Top right
+    Serial.println("Drawing dot bottom left");
+    u8g2.drawDisc(diceDotsLeftPos+7,diceDotsTopPos+23,3); // Bottom left
+  }
+  if(diceValue == 6){
+    Serial.println("Only 6");
+    Serial.println("Drawing dot middle left");
+    u8g2.drawDisc(diceDotsLeftPos+7,diceDotsTopPos+15,3); // Middle left
+    Serial.println("Drawing dot middle right");
+    u8g2.drawDisc(diceDotsLeftPos+23,diceDotsTopPos+15,3); // Middle right
+  }
+}
+
+void ScreenVirtualDiceDrawValueMom(){
+  // First row of dices
+  int diceTotal = 0;
+  int diceLeftPos = 0;
+  int diceTopPos = 0;
+  for(int i = 0; i <= selectedAmountOfDices; i++)
+  {
+    int vdRandomNumber = random(1, 9); // 8 possible outcomes
+    ScreenVirtualDiceDrawValueMomSymbol(vdRandomNumber, diceLeftPos, diceTopPos);
+    if(diceLeftPos >= 96)
+    {
+      // 4th dice in a row reached, drawing next one on second row
+      diceTopPos = diceTopPos+31;
+      diceLeftPos = 0;
+    }
+    else
+    {
+      diceLeftPos = diceLeftPos + 32;
+    }
+  }
+//  u8g2.setDrawColor(0);
+//  u8g2.drawStr(98,46,"SUM:");
+//  u8g2.drawStr(98,61,diceTotalChar);
+//  u8g2.setDrawColor(1);
+}
+
+void ScreenVirtualDiceDrawValueMomSymbol(int diceValue, int diceDotsLeftPos, int diceDotsTopPos)
+{
+  Serial.print("Drawing a ");
+  Serial.print(diceValue);
+  switch(diceValue){
+    case 1: // Loupe
+      Serial.print(" (loupe)");
+      break;
+    case 2: // Pentagram
+      Serial.print(" (pentagram)");
+      break;
+    case 3: // Empty
+      Serial.print(" empty");
+      break;
+    case 4: // Loupe
+      Serial.print(" (loupe)");
+      break;
+    case 5: // Pentagram
+      Serial.print(" (pentagram)");
+      break;
+    case 6: // Empty
+      Serial.print(" empty");
+      break;
+    case 7: // Loupe
+      Serial.print(" (loupe)");
+      break;
+    case 8: // Pentagram
+      Serial.print(" (pentagram)");
+      break;
+    default: // Unknown
+      Serial.print(" unknown");
+      break;
+  }
+  Serial.print(" for dice on left pos ");
+  Serial.print(diceDotsLeftPos);
+  Serial.print(" and top pos ");
+  Serial.print(diceDotsTopPos);
+  Serial.println(".");
+  if(diceValue == 1 || diceValue == 4 || diceValue == 7){ // Loupe
+    Serial.println("1, 4 or 7 (loupe)");
+    u8g2.drawXBMP(diceDotsLeftPos+7,diceDotsTopPos+7, 17, 16, imgDiceMomLoupe);
+  }
+  else if(diceValue == 2 || diceValue == 5 || diceValue == 8){ // Pentagram
+    Serial.println("2, 5 or 8 (pentagram)");
+    u8g2.drawXBMP(diceDotsLeftPos+4,diceDotsTopPos+2, 22, 25, imgDiceMomPentagram);
+  }
+  else if(diceValue == 3 || diceValue == 6){ // Empty
+    Serial.println("3 or 6 (empty)");
+  }
+  else
+  {
+    Serial.println("Unknown value to print");
+  }
+}
+
+void ScreenVirtualDiceStartScreen()
+{
+  u8g2.clearBuffer();
+  u8g2.drawStr(3,15,"Press select");
+  u8g2.drawStr(3,30,"to roll dices!");
+  u8g2.drawStr(3,45,"Hold select");
+  u8g2.drawStr(3,60,"for menu.");
+  u8g2.sendBuffer();
 }
 #endif
