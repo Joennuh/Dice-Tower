@@ -452,7 +452,6 @@ CHOOSE(selectedAmountOfDices,virtualDiceAmountMenu,"Dices: ",doNothing,noEvent,n
 
 MENU(virtualDiceMenu,"Virtual dice",doNothing,anyEvent,wrapStyle
   ,SUBMENU(virtualDiceTypeMenu)
-  //,FIELD(selectedAmountOfDices,"Dices: ","",0,7,2,1,doNothing,noEvent,wrapStyle)
   ,SUBMENU(virtualDiceAmountMenu)
   ,EXIT("< Back")
 );
@@ -520,13 +519,7 @@ result idle(menuOut& o,idleEvent e) {
   if(e == idling)
   {
       Serial.println("--> idling");
-//    u8g2.firstPage();
-//    do{
-//      u8g2.drawStr(0,64,"Dice detected!");
-//      u8g2.drawRFrame(44,5,40,40,5);
-//      //u8g2.drawDisc(49,10,3,U8G2_DRAW_ALL); // x, y, radius, draw everyhing
-//    } while( u8g2.nextPage() );
-    //nav.idleChanged=true; // Keep on calling the idle function. For documentation see: https://github.com/neu-rah/ArduinoMenu/wiki/Idling
+      //nav.idleChanged=true; // Keep on calling the idle function. For documentation see: https://github.com/neu-rah/ArduinoMenu/wiki/Idling
   }
   if(e == idleEnd)
   {
@@ -554,10 +547,6 @@ void button_init()
        Serial.print("Trigger activated! Activating eyes. Timestamp: ");
        Serial.println(eyesStartTimestamp);
     });
-
-//    btnTrigger.setReleasedHandler([](Button2 & b) {
-//       eyesOn = false;
-//    });
     
     btnConfig.setLongClickHandler([](Button2 & b) {
         // Select
@@ -679,7 +668,16 @@ void button_init()
        diLedType = 1;
        diLedDoubleClickstate = 0;
        diLedDoubleClickCount = 2;
-       nav.doNav(downCmd);
+       if(idleActivated == true) // Menu is not active
+       {
+        if(screenMode == 1){ // Screen mode is "virtual dice"
+          ButtonVirtualDiceDecrease(); // Decrease amount of dices used
+        }
+       }
+       else
+       {
+        nav.doNav(downCmd);
+       }
     });
 
     btnDown.setClickHandler([](Button2 & b) {
@@ -689,7 +687,16 @@ void button_init()
        diLedType = 1;
        diLedDoubleClickstate = 0;
        diLedDoubleClickCount = 2;
-       nav.doNav(upCmd);
+       if(idleActivated == true) // Menu is not active
+       {
+        if(screenMode == 1){ // Screen mode is "virtual dice"
+          ButtonVirtualDiceIncrease(); // Increase amount of dices used
+        }
+       }
+       else
+       {
+        nav.doNav(upCmd);
+       }
     });
 #endif
 }
@@ -1714,10 +1721,43 @@ void ScreenVirtualDiceDrawValueMomSymbol(int diceValue, int diceDotsLeftPos, int
 void ScreenVirtualDiceStartScreen()
 {
   u8g2.clearBuffer();
-  u8g2.drawStr(3,15,"Press select");
-  u8g2.drawStr(3,30,"to roll dices!");
-  u8g2.drawStr(3,45,"Hold select");
-  u8g2.drawStr(3,60,"for menu.");
+  u8g2.drawXBMP(0, 0, 128, 64, imgVirtualDicePressSelect);
+  u8g2.sendBuffer();
+}
+
+void ButtonVirtualDiceIncrease(){
+  if(selectedAmountOfDices >= 6){
+    selectedAmountOfDices=0;
+  }
+  else{
+    selectedAmountOfDices++;
+  }
+  int selectedAmountOfDicesDisplay = selectedAmountOfDices+1;
+  char selectedAmountOfDicesChar[4];
+  itoa(selectedAmountOfDicesDisplay,selectedAmountOfDicesChar,10); // Solution to convert int to char found on https://arduino.stackexchange.com/a/42987
+  u8g2.drawBox(96,31,30,30); // Overwrite only white box in bottom right corner
+  u8g2.setDrawColor(0);
+  u8g2.drawStr(98,46,"Dice");
+  u8g2.drawStr(98,61,selectedAmountOfDicesChar);
+  u8g2.setDrawColor(1);
+  u8g2.sendBuffer();
+}
+
+void ButtonVirtualDiceDecrease(){
+  if(selectedAmountOfDices <= 0){
+    selectedAmountOfDices=6;
+  }
+  else{
+    selectedAmountOfDices--;
+  }
+  int selectedAmountOfDicesDisplay = selectedAmountOfDices+1;
+  char selectedAmountOfDicesChar[4];
+  itoa(selectedAmountOfDicesDisplay,selectedAmountOfDicesChar,10); // Solution to convert int to char found on https://arduino.stackexchange.com/a/42987
+  u8g2.drawBox(96,31,30,30); // Overwrite only white box in bottom right corner
+  u8g2.setDrawColor(0);
+  u8g2.drawStr(98,46,"Dice");
+  u8g2.drawStr(98,61,selectedAmountOfDicesChar);
+  u8g2.setDrawColor(1);
   u8g2.sendBuffer();
 }
 #endif
